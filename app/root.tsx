@@ -1,0 +1,142 @@
+import 'reflect-metadata'
+import {
+  isRouteErrorResponse,
+  Links,
+  Meta,
+  Outlet,
+  Scripts,
+  ScrollRestoration,
+} from "react-router";
+import type { Route } from "./+types/root";
+import { QueryClientProvider, useQuery } from "@tanstack/react-query";
+import { queryClient } from "./query-client";
+import { supabase } from './supabase';
+import { useEffect } from 'react';
+import ActivityIndicator from './components/activity-indicator';
+import { useAuth } from './store/auth';
+import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
+
+import "./app.css";
+import { useSettings } from './store/settings';
+import { Toaster } from './components/ui/sonner';
+
+export const links: Route.LinksFunction = () => [
+  { rel: "preconnect", href: "https://fonts.googleapis.com" },
+  {
+    rel: "preconnect",
+    href: "https://fonts.gstatic.com",
+    crossOrigin: "anonymous",
+  },
+  {
+    rel: "stylesheet",
+    href: "https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap",
+  },
+];
+
+export function meta({}: Route.MetaArgs) {
+  return [
+    { title: "Budgetz" },
+    { name: "description", content: "Manage your budgetz!" },
+  ];
+}
+
+export function Layout({ children }: { children: React.ReactNode }) {
+  return (
+    <html lang="en">
+      <head>
+        <meta charSet="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <Meta />
+        <Links />
+      </head>
+      <body className="z-0">
+        <QueryClientProvider client={queryClient}>
+          {children}
+          <ReactQueryDevtools initialIsOpen={false} buttonPosition="bottom-left" />
+        </QueryClientProvider>
+        <Toaster />
+        <ScrollRestoration />
+        <Scripts />
+      </body>
+    </html>
+  );
+}
+
+export default function App() {
+  const { data: session, isFetched: isFetchedSession } = useQuery({
+    queryKey: ['session'],
+    queryFn: () => supabase.auth.getSession(),
+    select: (res) => res.data.session
+  })
+
+  const { data: settings, isFetched: isFetchedSettings } = useQuery({
+    queryKey: ['settings', session?.user?.id],
+    enabled: Boolean(session?.user.id),
+    queryFn: async () => {
+      const res = await supabase.from('settings').select().eq('user_id', session!.user.id).maybeSingle()
+
+      return res
+    },
+    select: (res) => res.data
+  })
+
+  const setInitialized = useAuth(state => state.setInitialized)
+  const setSession = useAuth(state => state.setSession)
+  const isAuthInitialized = useAuth(state => state.isInitialized)
+
+  const setSettings = useSettings(state => state.setSettings)
+
+  useEffect(() => {
+    setSession(session ?? null)
+  }, [session])
+
+  useEffect(() => {
+    setSettings(settings ?? null)
+  }, [settings])
+
+  useEffect(() => {
+    if (isFetchedSession && isFetchedSettings) {
+      setInitialized(true)
+    }
+  }, [isFetchedSession, isFetchedSettings])
+
+  return (
+    <>
+      <Outlet />
+      {!isAuthInitialized ? (
+        <div className="fixed top-0 left-0 w-screen h-screen z-[1] bg-white">
+          <ActivityIndicator />
+        </div>
+      ) : null}
+    </>
+  )
+}
+
+export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
+  let message = "Oops!";
+  let details = "An unexpected error occurred.";
+  let stack: string | undefined;
+
+  if (isRouteErrorResponse(error)) {
+    message = error.status === 404 ? "404" : "Error";
+    details =
+      error.status === 404
+        ? "The requested page could not be found."
+        : error.statusText || details;
+  } else if (import.meta.env.DEV && error && error instanceof Error) {
+    details = error.message;
+    stack = error.stack;
+  }
+
+  return (
+    <main className="pt-16 p-4 container mx-auto">
+      <h1>{message}</h1>
+      <p>{details}</p>
+      {stack && (
+        <pre className="w-full p-4 overflow-x-auto">
+          <code>{stack}</code>
+        </pre>
+      )}
+    </main>
+  );
+}
