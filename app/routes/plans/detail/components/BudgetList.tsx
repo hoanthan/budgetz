@@ -18,7 +18,7 @@ import {
 import { Button } from "~/components/ui/button";
 import Currency from "~/components/ui/currency";
 import { Skeleton } from "~/components/ui/skeleton";
-import styles from "./styles.module.css";
+import "./styles.css";
 import "react-swipeable-list/dist/styles.css";
 import { useMutation } from "@tanstack/react-query";
 import { supabase } from "~/supabase";
@@ -123,7 +123,7 @@ const BudgetList: React.FC<BudgetListProps> = ({
                 >
                   <SwipeableListItem
                     trailingActions={renderItemActions(budget)}
-                    className={styles.listItem}
+                    className="budget-list-item"
                   >
                     <AccordionTrigger className="w-full">
                       <p className="grow">{budget.name}</p>

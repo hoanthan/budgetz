@@ -103,14 +103,12 @@ export default function HomePage() {
           onChange={(e) => setSearch(e.target.value)}
         />
       </div>
-      <SwipeableList
-        className="grow grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4"
-        type={Type.IOS}
-      >
+      <SwipeableList className="grow grid" type={Type.IOS}>
         {plans?.data?.map((plan) => (
           <SwipeableListItem
             key={plan.id}
             trailingActions={renderItemActions(plan)}
+            className="w-full"
           >
             <Link
               to={`/plans/${plan.id}`}

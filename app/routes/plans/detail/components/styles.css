@@ -1,0 +1,7 @@
+.budget-list-item h3 {
+  width: 100%;
+}
+
+.budget-list-item .swipeable-list-item__content {
+  display: block !important;
+}
