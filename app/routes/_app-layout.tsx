@@ -11,12 +11,22 @@ import { ScrollArea } from "~/components/ui/scroll-area";
 import { Button } from "~/components/ui/button";
 import { ChevronLeft } from "lucide-react";
 import { isServer } from "@tanstack/react-query";
+import { useRef, useState } from "react";
+import { useMount } from "@reactuses/core";
 
 const AppLayout = () => {
   const navigate = useNavigate();
-
   const currentPageTitle = useRoute((state) => state.pageTitle);
+
+  const mainContainer = useRef<HTMLDivElement>(null);
+
+  const [mainHeight, setMainHeight] = useState<number>();
+
   const canGoBack = isServer ? false : window.location.pathname !== "/";
+
+  useMount(() => {
+    setMainHeight(mainContainer.current?.clientHeight);
+  });
 
   return (
     <SidebarProvider>
@@ -44,7 +54,13 @@ const AppLayout = () => {
             className="shrink-0 flex items-center gap-2"
           ></div>
         </header>
-        <ScrollArea className="relative flex flex-col gap-4 px-4 pb-24 h-[calc(100%-var(--spacing) * 16)]">
+        <ScrollArea
+          ref={mainContainer}
+          className="relative grow flex flex-col gap-4 px-4 pb-24"
+          style={{
+            height: mainHeight,
+          }}
+        >
           <Outlet />
         </ScrollArea>
       </SidebarInset>

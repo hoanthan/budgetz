@@ -1,64 +1,69 @@
-import { classValidatorResolver } from "@hookform/resolvers/class-validator"
-import { useMutation } from "@tanstack/react-query"
-import { IsDefined, IsIn, IsString } from "class-validator"
-import { useCallback } from "react"
-import { Controller, useForm } from "react-hook-form"
-import { useNavigate, useSearchParams } from "react-router"
-import { toast } from "sonner"
-import ErrorMessage from "~/components/form/error-message"
-import { Button } from "~/components/ui/button"
-import { Combobox } from "~/components/ui/combobox"
-import { Label } from "~/components/ui/label"
-import { CURRENCIES } from "~/constants/currency"
-import { usePageTitle } from "~/hooks/use-page-title"
-import { useSettings } from "~/store/settings"
-import { supabase } from "~/supabase"
+import { classValidatorResolver } from "@hookform/resolvers/class-validator";
+import { useMutation } from "@tanstack/react-query";
+import { IsDefined, IsIn, IsString } from "class-validator";
+import { useCallback } from "react";
+import { Controller, useForm } from "react-hook-form";
+import { useNavigate, useSearchParams } from "react-router";
+import { toast } from "sonner";
+import ErrorMessage from "~/components/form/error-message";
+import { Button } from "~/components/ui/button";
+import { Combobox } from "~/components/ui/combobox";
+import { Label } from "~/components/ui/label";
+import { CURRENCIES } from "~/constants/currency";
+import { usePageTitle } from "~/hooks/use-page-title";
+import { useSettings } from "~/store/settings";
+import { supabase } from "~/supabase";
 
 class SettingsData {
   @IsDefined()
   @IsString()
   @IsIn(Object.keys(CURRENCIES))
-  currency: string
+  currency: string;
 }
 
 const SettingsPage = () => {
-  usePageTitle('Settings')
-  
-  const [searchParams] = useSearchParams()
-  const navigate = useNavigate()
+  usePageTitle("Settings");
 
-  const settings = useSettings(state => state.settings)
-  const setSettings = useSettings(state => state.setSettings)
+  const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
+
+  const settings = useSettings((state) => state.settings);
+  const setSettings = useSettings((state) => state.setSettings);
 
   const { handleSubmit, control, formState } = useForm<SettingsData>({
     resolver: classValidatorResolver(SettingsData),
-    defaultValues: settings ?? undefined
-  })
+    defaultValues: settings ?? undefined,
+  });
 
   const { mutate: save, isPending } = useMutation({
-    mutationKey: ['updateSettings'],
+    mutationKey: ["updateSettings"],
     mutationFn: async (data: SettingsData) => {
-
-      return await supabase.from('settings').upsert({
-        ...data,
-        id: settings?.id
-      }).select()
+      return await supabase
+        .from("settings")
+        .upsert({
+          ...data,
+          id: settings?.id,
+        })
+        .select();
     },
     onSuccess: (res) => {
-      toast.success('Settings saved!')
-      setSettings(res.data?.[0] ?? null)
-      if (searchParams.get('callback')) {
-        navigate(searchParams.get('callback')!)
+      toast.success("Settings saved!");
+      setSettings(res.data?.[0] ?? null);
+      if (searchParams.get("callback")) {
+        navigate(searchParams.get("callback")!);
       }
-    }
-  })
+    },
+  });
 
   const onSubmit = useCallback((data: SettingsData) => {
-    save(data)
-  }, [])
+    save(data);
+  }, []);
 
   return (
-    <form className="flex flex-col gap-4" onSubmit={handleSubmit(onSubmit)}>
+    <form
+      className="flex flex-col gap-4 py-2"
+      onSubmit={handleSubmit(onSubmit)}
+    >
       <Controller
         control={control}
         name="currency"
@@ -70,8 +75,8 @@ const SettingsPage = () => {
               options={Object.entries(CURRENCIES).map(([key, currency]) => {
                 return {
                   value: key,
-                  label: `${currency.name} / ${currency.code} (${currency.symbol})`
-                }
+                  label: `${currency.name} / ${currency.code} (${currency.symbol})`,
+                };
               })}
               name={name}
               value={value}
@@ -85,7 +90,7 @@ const SettingsPage = () => {
         <Button loading={isPending}>Save</Button>
       </div>
     </form>
-  )
-}
+  );
+};
 
-export default SettingsPage
+export default SettingsPage;

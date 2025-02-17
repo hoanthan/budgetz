@@ -106,8 +106,6 @@ export default function HomePage() {
     );
   };
 
-  if (isLoading) return <PageSkeleton />;
-
   return (
     <PlanFormDrawer
       plan={activePlan}
@@ -132,56 +130,60 @@ export default function HomePage() {
               onChange={(e) => setSearch(e.target.value)}
             />
           </div>
-          <SwipeableList className="grow grid" type={Type.IOS}>
-            {plans?.data?.map((plan) => (
-              <SwipeableListItem
-                key={plan.id}
-                trailingActions={renderItemActions(plan, togglePlanForm)}
-                className="w-full"
-              >
-                <Link
-                  to={`/plans/${plan.id}`}
-                  className="border-b border-gray-300 last:border-b-0 border-solid w-full h-full aria-disabled:pointer-events-none"
-                  aria-disabled={deletingPlanId === plan.id && isDeleting}
+          {isLoading ? (
+            <PageSkeleton />
+          ) : (
+            <SwipeableList className="grow grid" type={Type.IOS}>
+              {plans?.data?.map((plan) => (
+                <SwipeableListItem
+                  key={plan.id}
+                  trailingActions={renderItemActions(plan, togglePlanForm)}
+                  className="w-full border-b border-gray-300 last:border-b-0 border-solid"
                 >
-                  <div className="py-2 flex justify-between items-center">
-                    <div>
-                      <p className="font-medium grow">{plan.name}</p>
-                      <div className="text-sm text-muted-foreground">
-                        <div className="flex justify-between items-center">
-                          <div className="grow flex gap-2">
-                            <p>
-                              {plan.start ? (
-                                <span>
-                                  {format(new Date(plan.start), "LLL dd, y")}
-                                </span>
-                              ) : null}
-                              {plan.end ? (
-                                <>
-                                  {" "}
-                                  -{" "}
+                  <Link
+                    to={`/plans/${plan.id}`}
+                    className="w-full h-full aria-disabled:pointer-events-none"
+                    aria-disabled={deletingPlanId === plan.id && isDeleting}
+                  >
+                    <div className="py-2 flex justify-between items-center">
+                      <div>
+                        <p className="font-medium grow">{plan.name}</p>
+                        <div className="text-sm text-muted-foreground">
+                          <div className="flex justify-between items-center">
+                            <div className="grow flex gap-2">
+                              <p>
+                                {plan.start ? (
                                   <span>
-                                    {format(new Date(plan.end), "LLL dd, y")}
+                                    {format(new Date(plan.start), "LLL dd, y")}
                                   </span>
-                                </>
-                              ) : null}
-                            </p>
+                                ) : null}
+                                {plan.end ? (
+                                  <>
+                                    {" "}
+                                    -{" "}
+                                    <span>
+                                      {format(new Date(plan.end), "LLL dd, y")}
+                                    </span>
+                                  </>
+                                ) : null}
+                              </p>
+                            </div>
                           </div>
                         </div>
                       </div>
+                      <div className="shrink-0">
+                        {deletingPlanId === plan.id && isDeleting ? (
+                          <p className="text-destructive flex items-center gap-1 text-xs">
+                            Deleting <FaSpinner className="animate-spin" />
+                          </p>
+                        ) : null}
+                      </div>
                     </div>
-                    <div className="shrink-0">
-                      {deletingPlanId === plan.id && isDeleting ? (
-                        <p className="text-destructive flex items-center gap-1 text-xs">
-                          Deleting <FaSpinner className="animate-spin" />
-                        </p>
-                      ) : null}
-                    </div>
-                  </div>
-                </Link>
-              </SwipeableListItem>
-            ))}
-          </SwipeableList>
+                  </Link>
+                </SwipeableListItem>
+              ))}
+            </SwipeableList>
+          )}
         </div>
       )}
     </PlanFormDrawer>

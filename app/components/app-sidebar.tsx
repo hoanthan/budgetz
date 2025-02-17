@@ -1,5 +1,5 @@
-import * as React from "react"
-import { GalleryVerticalEnd } from "lucide-react"
+import * as React from "react";
+import { GalleryVerticalEnd } from "lucide-react";
 
 import {
   Sidebar,
@@ -13,17 +13,17 @@ import {
   SidebarMenuSubButton,
   SidebarMenuSubItem,
   SidebarRail,
-} from "~/components/ui/sidebar"
-import { Link, NavLink } from "react-router"
-import { Button } from "./ui/button"
-import { useMutation } from "@tanstack/react-query"
-import { supabase } from "~/supabase"
+} from "~/components/ui/sidebar";
+import { Link, NavLink } from "react-router";
+import { Button } from "./ui/button";
+import { useMutation } from "@tanstack/react-query";
+import { supabase } from "~/supabase";
 
 type NavItem = {
-  title: string
-  url?: string
-  items?: NavItem[]
-}
+  title: string;
+  url?: string;
+  items?: NavItem[];
+};
 
 const navItems: NavItem[] = [
   {
@@ -33,20 +33,21 @@ const navItems: NavItem[] = [
   {
     title: "Settings",
     url: "/settings",
-  }
-]
+  },
+];
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const { mutate: logout, isPending: isSigningOut } = useMutation({
-    mutationKey: ['logout'],
-    mutationFn: () => supabase.auth.signOut({
-      scope: 'local'
-    }),
+    mutationKey: ["logout"],
+    mutationFn: () =>
+      supabase.auth.signOut({
+        scope: "local",
+      }),
     onSuccess: () => {
-      window.location.assign('/auth/login')
-    }
-  })
-  
+      window.location.assign("/auth/login");
+    },
+  });
+
   return (
     <Sidebar {...props}>
       <SidebarHeader>
@@ -54,8 +55,12 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           <SidebarMenuItem>
             <SidebarMenuButton size="lg" asChild>
               <Link to="/">
-                <div className="bg-sidebar-primary text-sidebar-primary-foreground flex aspect-square size-8 items-center justify-center rounded-lg">
-                  <GalleryVerticalEnd className="size-4" />
+                <div className="text-sidebar-primary-foreground flex aspect-square size-8 items-center justify-center rounded-lg">
+                  <img
+                    className="size-8"
+                    src="/favicon.png"
+                    alt="Budgetz logo"
+                  />
                 </div>
                 <div className="flex flex-col gap-0.5 leading-none">
                   <span className="font-semibold">Budgetz</span>
@@ -74,23 +79,23 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                 return (
                   <SidebarMenuItem key={item.title}>
                     <SidebarMenuButton asChild>
-                      <p className="font-medium">
-                        {item.title}
-                      </p>
+                      <p className="font-medium">{item.title}</p>
                     </SidebarMenuButton>
                     {item.items?.length ? (
                       <SidebarMenuSub>
                         {item.items.map((child) => (
                           <SidebarMenuSubItem key={child.title}>
                             <SidebarMenuSubButton>
-                              <NavLink to={child.url ?? '/'} className="w-full">{child.title}</NavLink>
+                              <NavLink to={child.url ?? "/"} className="w-full">
+                                {child.title}
+                              </NavLink>
                             </SidebarMenuSubButton>
                           </SidebarMenuSubItem>
                         ))}
                       </SidebarMenuSub>
                     ) : null}
                   </SidebarMenuItem>
-                )
+                );
               }
 
               return (
@@ -99,15 +104,17 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                     {item.title}
                   </SidebarMenuButton>
                 </SidebarMenuItem>
-              )
+              );
             })}
           </SidebarMenu>
         </SidebarGroup>
         <SidebarGroup>
-          <Button loading={isSigningOut} onClick={() => logout()}>Logout</Button>
+          <Button loading={isSigningOut} onClick={() => logout()}>
+            Logout
+          </Button>
         </SidebarGroup>
       </SidebarContent>
       <SidebarRail />
     </Sidebar>
-  )
+  );
 }
