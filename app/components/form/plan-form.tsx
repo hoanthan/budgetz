@@ -122,6 +122,23 @@ const PlanForm: React.FC<{
       </div>
       <Controller
         control={control}
+        name="range"
+        render={({ field: { name, value, onChange } }) => (
+          <div className="grid gap-2">
+            <Label>Date range</Label>
+            <DateRangePicker
+              name={name}
+              value={value}
+              onChange={onChange}
+              tabIndex={1}
+            />
+            <ErrorMessage formState={formState} name="range.from" />
+            <ErrorMessage formState={formState} name="range.to" />
+          </div>
+        )}
+      />
+      <Controller
+        control={control}
         name="currency"
         render={({ field: { name, value, onChange } }) => (
           <div className="grid gap-2">
@@ -137,26 +154,9 @@ const PlanForm: React.FC<{
               name={name}
               value={value}
               onChange={onChange}
-              tabIndex={1}
-            />
-            <ErrorMessage formState={formState} name="currency" />
-          </div>
-        )}
-      />
-      <Controller
-        control={control}
-        name="range"
-        render={({ field: { name, value, onChange } }) => (
-          <div className="grid gap-2">
-            <Label>Date range</Label>
-            <DateRangePicker
-              name={name}
-              value={value}
-              onChange={onChange}
               tabIndex={2}
             />
-            <ErrorMessage formState={formState} name="range.from" />
-            <ErrorMessage formState={formState} name="range.to" />
+            <ErrorMessage formState={formState} name="currency" />
           </div>
         )}
       />

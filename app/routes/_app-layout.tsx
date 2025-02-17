@@ -21,7 +21,7 @@ const AppLayout = () => {
   return (
     <SidebarProvider>
       <AppSidebar />
-      <SidebarInset className="h-screen overflow-hidden">
+      <SidebarInset className="h-dvh overflow-hidden">
         <header className="flex h-16 shrink-0 items-center gap-2 border-b px-4 bg-white z-[1]">
           <SidebarTrigger className="-ml-1" />
           <div className="grow flex items-center">
@@ -44,7 +44,7 @@ const AppLayout = () => {
             className="shrink-0 flex items-center gap-2"
           ></div>
         </header>
-        <ScrollArea className="relative flex h-full flex-col gap-4 px-4 pb-24">
+        <ScrollArea className="relative flex flex-col gap-4 px-4 pb-24 h-[calc(100%-var(--spacing) * 16)]">
           <Outlet />
         </ScrollArea>
       </SidebarInset>

@@ -1,10 +1,10 @@
-"use client"
+"use client";
 
-import * as React from "react"
-import { Check, ChevronsUpDown } from "lucide-react"
+import * as React from "react";
+import { Check, ChevronsUpDown } from "lucide-react";
 
-import { cn } from "~/lib/utils"
-import { Button } from "~/components/ui/button"
+import { cn } from "~/lib/utils";
+import { Button } from "~/components/ui/button";
 import {
   Command,
   CommandEmpty,
@@ -12,29 +12,39 @@ import {
   CommandInput,
   CommandItem,
   CommandList,
-} from "~/components/ui/command"
+} from "~/components/ui/command";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from "~/components/ui/popover"
+} from "~/components/ui/popover";
 
 type ComboboxOption = {
-  value: string
-  label: string | React.JSX.Element
-}
+  value: string;
+  label: string | React.JSX.Element;
+};
 
 type ComboboxProps = {
-  value?: string | null
-  onChange?: (val: string | null) => void
-  options?: ComboboxOption[]
-  placeholder?: string
-  notFoundText?: string
-  name?: string
-}
+  value?: string | null;
+  onChange?: (val: string | null) => void;
+  options?: ComboboxOption[];
+  placeholder?: string;
+  notFoundText?: string;
+  name?: string;
+  searchPlaceholder?: string;
+};
 
-export function Combobox({ name, value, options, onChange, placeholder, notFoundText, ...props }: ComboboxProps & React.HTMLAttributes<HTMLButtonElement>) {
-  const [open, setOpen] = React.useState(false)
+export function Combobox({
+  name,
+  value,
+  options,
+  onChange,
+  placeholder,
+  notFoundText,
+  searchPlaceholder = "Search...",
+  ...props
+}: ComboboxProps & React.HTMLAttributes<HTMLButtonElement>) {
+  const [open, setOpen] = React.useState(false);
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
@@ -48,13 +58,17 @@ export function Combobox({ name, value, options, onChange, placeholder, notFound
         >
           {value
             ? options?.find((option) => option.value === value)?.label
-            : placeholder || 'Select...'}
+            : placeholder || "Select..."}
           <ChevronsUpDown className="opacity-50" />
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-full max-w-80 p-0">
         <Command>
-          <CommandInput name={name} placeholder="Search framework..." className="h-9" />
+          <CommandInput
+            name={name}
+            placeholder={searchPlaceholder}
+            className="h-9"
+          />
           <CommandList>
             <CommandEmpty>{notFoundText}</CommandEmpty>
             <CommandGroup>
@@ -63,8 +77,8 @@ export function Combobox({ name, value, options, onChange, placeholder, notFound
                   key={option.value}
                   value={option.value}
                   onSelect={(currentValue) => {
-                    onChange?.(currentValue === value ? null : currentValue)
-                    setOpen(false)
+                    onChange?.(currentValue === value ? null : currentValue);
+                    setOpen(false);
                   }}
                 >
                   {option.label}
@@ -81,5 +95,5 @@ export function Combobox({ name, value, options, onChange, placeholder, notFound
         </Command>
       </PopoverContent>
     </Popover>
-  )
+  );
 }

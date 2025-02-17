@@ -38,7 +38,7 @@ export const PlanFormDrawer: React.FC<{
 
   return (
     <Drawer open={opened} onOpenChange={toggle}>
-      <DrawerTrigger asChild>{children({ opened, toggle })}</DrawerTrigger>
+      {children({ opened, toggle })}
       <DrawerContent>
         <div className="mx-auto w-full max-w-sm">
           <DrawerHeader>
