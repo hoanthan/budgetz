@@ -109,7 +109,7 @@ const PlanDetailPage = () => {
       {createPortal(
         <PlanFormDrawer plan={plan ?? undefined} onSuccess={() => refetch()}>
           <Button variant="ghost" size="icon">
-            <Edit />
+            <Edit className="size-5" />
           </Button>
         </PlanFormDrawer>,
         document.getElementById("headerActions")!

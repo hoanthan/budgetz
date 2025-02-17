@@ -80,7 +80,7 @@ export default function HomePage() {
             size="icon"
             className="h-full px-2 text-destructive text-center flex items-center justify-center font-medium select-none"
           >
-            <Trash />
+            <Trash className="size-5" />
           </Button>
         </SwipeAction>
       </TrailingActions>

@@ -99,7 +99,7 @@ const BudgetSummary: React.FC<{
                     </small>
                   </div>
                   <div>
-                    <p className="shrink-0">
+                    <p className="shrink-0 text-right">
                       <Currency>
                         {budget.type === "in"
                           ? transaction.amount
@@ -110,7 +110,7 @@ const BudgetSummary: React.FC<{
                       <Button
                         variant="ghost"
                         size="icon"
-                        className="m-auto px-2 text-center flex items-center justify-center font-medium select-none"
+                        className="m-0 px-2 text-center flex items-center justify-center font-medium select-none"
                         onClick={() => {
                           setActiveTransaction(transaction);
                           toggleTransactionForm(true);
@@ -121,7 +121,7 @@ const BudgetSummary: React.FC<{
                       <Button
                         variant="ghost"
                         size="icon"
-                        className="m-auto px-2 text-destructive text-center flex items-center justify-center font-medium select-none"
+                        className="m-0 px-2 text-destructive text-center flex items-center justify-center font-medium select-none"
                         onClick={() => {
                           deleteTransaction(transaction.id);
                         }}

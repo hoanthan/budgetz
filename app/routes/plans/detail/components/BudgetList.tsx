@@ -82,7 +82,7 @@ const BudgetList: React.FC<BudgetListProps> = ({
             size="icon"
             className="m-auto px-2 text-center flex items-center justify-center font-medium select-none"
           >
-            <Edit />
+            <Edit className="size-5" />
           </Button>
         </SwipeAction>
         <SwipeAction onClick={() => deleteBudget(budget.id)} Tag="div">
@@ -91,7 +91,7 @@ const BudgetList: React.FC<BudgetListProps> = ({
             size="icon"
             className="m-auto px-2 text-destructive text-center flex items-center justify-center font-medium select-none"
           >
-            <Trash />
+            <Trash className="size-5" />
           </Button>
         </SwipeAction>
       </TrailingActions>
@@ -141,7 +141,7 @@ const BudgetList: React.FC<BudgetListProps> = ({
                                   : budget.amount * -1}
                               </Currency>
                             </p>
-                            <p className="text-muted-foreground font-normal flex items-center">
+                            <p className="text-muted-foreground font-normal flex items-center justify-end text-right">
                               actual:{" "}
                               {isLoadingActualAmount ? (
                                 <FaSpinner className="animate-spin ml-2" />
