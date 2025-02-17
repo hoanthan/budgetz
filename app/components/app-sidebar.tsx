@@ -1,180 +1,111 @@
 import * as React from "react"
+import { GalleryVerticalEnd } from "lucide-react"
 
-import { SearchForm } from "~/components/form/search-form"
-import { VersionSwitcher } from "~/components/version-switcher"
 import {
   Sidebar,
   SidebarContent,
   SidebarGroup,
-  SidebarGroupContent,
-  SidebarGroupLabel,
   SidebarHeader,
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
+  SidebarMenuSub,
+  SidebarMenuSubButton,
+  SidebarMenuSubItem,
   SidebarRail,
 } from "~/components/ui/sidebar"
+import { Link, NavLink } from "react-router"
+import { Button } from "./ui/button"
+import { useMutation } from "@tanstack/react-query"
+import { supabase } from "~/supabase"
 
-// This is sample data.
-const data = {
-  versions: ["1.0.1", "1.1.0-alpha", "2.0.0-beta1"],
-  navMain: [
-    {
-      title: "Getting Started",
-      url: "#",
-      items: [
-        {
-          title: "Installation",
-          url: "#",
-        },
-        {
-          title: "Project Structure",
-          url: "#",
-        },
-      ],
-    },
-    {
-      title: "Building Your Application",
-      url: "#",
-      items: [
-        {
-          title: "Routing",
-          url: "#",
-        },
-        {
-          title: "Data Fetching",
-          url: "#",
-          isActive: true,
-        },
-        {
-          title: "Rendering",
-          url: "#",
-        },
-        {
-          title: "Caching",
-          url: "#",
-        },
-        {
-          title: "Styling",
-          url: "#",
-        },
-        {
-          title: "Optimizing",
-          url: "#",
-        },
-        {
-          title: "Configuring",
-          url: "#",
-        },
-        {
-          title: "Testing",
-          url: "#",
-        },
-        {
-          title: "Authentication",
-          url: "#",
-        },
-        {
-          title: "Deploying",
-          url: "#",
-        },
-        {
-          title: "Upgrading",
-          url: "#",
-        },
-        {
-          title: "Examples",
-          url: "#",
-        },
-      ],
-    },
-    {
-      title: "API Reference",
-      url: "#",
-      items: [
-        {
-          title: "Components",
-          url: "#",
-        },
-        {
-          title: "File Conventions",
-          url: "#",
-        },
-        {
-          title: "Functions",
-          url: "#",
-        },
-        {
-          title: "next.config.js Options",
-          url: "#",
-        },
-        {
-          title: "CLI",
-          url: "#",
-        },
-        {
-          title: "Edge Runtime",
-          url: "#",
-        },
-      ],
-    },
-    {
-      title: "Architecture",
-      url: "#",
-      items: [
-        {
-          title: "Accessibility",
-          url: "#",
-        },
-        {
-          title: "Fast Refresh",
-          url: "#",
-        },
-        {
-          title: "Next.js Compiler",
-          url: "#",
-        },
-        {
-          title: "Supported Browsers",
-          url: "#",
-        },
-        {
-          title: "Turbopack",
-          url: "#",
-        },
-      ],
-    },
-  ],
+type NavItem = {
+  title: string
+  url?: string
+  items?: NavItem[]
 }
 
+const navItems: NavItem[] = [
+  {
+    title: "Plans",
+    url: "/",
+  },
+  {
+    title: "Settings",
+    url: "/settings",
+  }
+]
+
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+  const { mutate: logout, isPending: isSigningOut } = useMutation({
+    mutationKey: ['logout'],
+    mutationFn: () => supabase.auth.signOut({
+      scope: 'local'
+    }),
+    onSuccess: () => {
+      window.location.assign('/auth/login')
+    }
+  })
+  
   return (
     <Sidebar {...props}>
       <SidebarHeader>
-        <VersionSwitcher
-          versions={data.versions}
-          defaultVersion={data.versions[0]}
-        />
-        <SearchForm />
+        <SidebarMenu>
+          <SidebarMenuItem>
+            <SidebarMenuButton size="lg" asChild>
+              <Link to="/">
+                <div className="bg-sidebar-primary text-sidebar-primary-foreground flex aspect-square size-8 items-center justify-center rounded-lg">
+                  <GalleryVerticalEnd className="size-4" />
+                </div>
+                <div className="flex flex-col gap-0.5 leading-none">
+                  <span className="font-semibold">Budgetz</span>
+                  <span className="">v1.0.0</span>
+                </div>
+              </Link>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+        </SidebarMenu>
       </SidebarHeader>
       <SidebarContent>
-        {/* We create a SidebarGroup for each parent. */}
-        {data.navMain.map((item) => (
-          <SidebarGroup key={item.title}>
-            <SidebarGroupLabel>{item.title}</SidebarGroupLabel>
-            <SidebarGroupContent>
-              <SidebarMenu>
-                {item.items.map((item) => (
+        <SidebarGroup className="grow">
+          <SidebarMenu>
+            {navItems.map((item) => {
+              if (item.items) {
+                return (
                   <SidebarMenuItem key={item.title}>
-                    <SidebarMenuButton asChild isActive={item.isActive}>
-                      <a href={item.url}>{item.title}</a>
+                    <SidebarMenuButton asChild>
+                      <p className="font-medium">
+                        {item.title}
+                      </p>
                     </SidebarMenuButton>
+                    {item.items?.length ? (
+                      <SidebarMenuSub>
+                        {item.items.map((child) => (
+                          <SidebarMenuSubItem key={child.title}>
+                            <SidebarMenuSubButton>
+                              <NavLink to={child.url ?? '/'} className="w-full">{child.title}</NavLink>
+                            </SidebarMenuSubButton>
+                          </SidebarMenuSubItem>
+                        ))}
+                      </SidebarMenuSub>
+                    ) : null}
                   </SidebarMenuItem>
-                ))}
-              </SidebarMenu>
-            </SidebarGroupContent>
-          </SidebarGroup>
-        ))}
+                )
+              }
+
+              return (
+                <SidebarMenuItem key={item.title}>
+                  <SidebarMenuButton url={item.url} className="font-medium">
+                    {item.title}
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              )
+            })}
+          </SidebarMenu>
+        </SidebarGroup>
+        <SidebarGroup>
+          <Button loading={isSigningOut} onClick={() => logout()}>Logout</Button>
+        </SidebarGroup>
       </SidebarContent>
       <SidebarRail />
     </Sidebar>

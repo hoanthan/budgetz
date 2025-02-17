@@ -1,4 +1,4 @@
-import 'reflect-metadata'
+import "reflect-metadata";
 import {
   isRouteErrorResponse,
   Links,
@@ -10,15 +10,15 @@ import {
 import type { Route } from "./+types/root";
 import { QueryClientProvider, useQuery } from "@tanstack/react-query";
 import { queryClient } from "./query-client";
-import { supabase } from './supabase';
-import { useEffect } from 'react';
-import ActivityIndicator from './components/activity-indicator';
-import { useAuth } from './store/auth';
-import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
+import { supabase } from "./supabase";
+import { useEffect } from "react";
+import ActivityIndicator from "./components/activity-indicator";
+import { useAuth } from "./store/auth";
+import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 
 import "./app.css";
-import { useSettings } from './store/settings';
-import { Toaster } from './components/ui/sonner';
+import { useSettings } from "./store/settings";
+import { Toaster } from "./components/ui/sonner";
 
 export const links: Route.LinksFunction = () => [
   { rel: "preconnect", href: "https://fonts.googleapis.com" },
@@ -52,7 +52,10 @@ export function Layout({ children }: { children: React.ReactNode }) {
       <body className="z-0">
         <QueryClientProvider client={queryClient}>
           {children}
-          <ReactQueryDevtools initialIsOpen={false} buttonPosition="bottom-left" />
+          <ReactQueryDevtools
+            initialIsOpen={false}
+            buttonPosition="bottom-left"
+          />
         </QueryClientProvider>
         <Toaster />
         <ScrollRestoration />
@@ -64,41 +67,49 @@ export function Layout({ children }: { children: React.ReactNode }) {
 
 export default function App() {
   const { data: session, isFetched: isFetchedSession } = useQuery({
-    queryKey: ['session'],
+    queryKey: ["session"],
     queryFn: () => supabase.auth.getSession(),
-    select: (res) => res.data.session
-  })
+    select: (res) => res.data.session,
+  });
 
   const { data: settings, isFetched: isFetchedSettings } = useQuery({
-    queryKey: ['settings', session?.user?.id],
+    queryKey: ["settings", session?.user?.id],
     enabled: Boolean(session?.user.id),
     queryFn: async () => {
-      const res = await supabase.from('settings').select().eq('user_id', session!.user.id).maybeSingle()
+      const res = await supabase
+        .from("settings")
+        .select()
+        .eq("user_id", session!.user.id)
+        .maybeSingle();
 
-      return res
+      return res;
     },
-    select: (res) => res.data
-  })
+    select: (res) => res.data,
+  });
 
-  const setInitialized = useAuth(state => state.setInitialized)
-  const setSession = useAuth(state => state.setSession)
-  const isAuthInitialized = useAuth(state => state.isInitialized)
+  const setInitialized = useAuth((state) => state.setInitialized);
+  const setSession = useAuth((state) => state.setSession);
+  const isAuthInitialized = useAuth((state) => state.isInitialized);
 
-  const setSettings = useSettings(state => state.setSettings)
-
-  useEffect(() => {
-    setSession(session ?? null)
-  }, [session])
+  const setSettings = useSettings((state) => state.setSettings);
 
   useEffect(() => {
-    setSettings(settings ?? null)
-  }, [settings])
+    setSession(session ?? null);
+  }, [session]);
 
   useEffect(() => {
-    if (isFetchedSession && isFetchedSettings) {
-      setInitialized(true)
+    setSettings(settings ?? null);
+  }, [settings]);
+
+  useEffect(() => {
+    if (isFetchedSession) {
+      if (!session) {
+        setInitialized(true);
+      } else if (isFetchedSettings) {
+        setInitialized(true);
+      }
     }
-  }, [isFetchedSession, isFetchedSettings])
+  }, [isFetchedSession, isFetchedSettings]);
 
   return (
     <>
@@ -109,7 +120,7 @@ export default function App() {
         </div>
       ) : null}
     </>
-  )
+  );
 }
 
 export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {

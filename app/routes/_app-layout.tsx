@@ -1,13 +1,22 @@
-import { isRouteErrorResponse, Outlet } from "react-router";
+import { isRouteErrorResponse, Outlet, useNavigate } from "react-router";
 import type { Route } from "./+types/_app-layout";
-import { Separator } from "@radix-ui/react-separator";
 import { AppSidebar } from "~/components/app-sidebar";
-import { SidebarProvider, SidebarInset, SidebarTrigger } from "~/components/ui/sidebar";
+import {
+  SidebarProvider,
+  SidebarInset,
+  SidebarTrigger,
+} from "~/components/ui/sidebar";
 import { useRoute } from "~/store/route";
 import { ScrollArea } from "~/components/ui/scroll-area";
+import { Button } from "~/components/ui/button";
+import { ChevronLeft } from "lucide-react";
+import { isServer } from "@tanstack/react-query";
 
 const AppLayout = () => {
-  const currentPageTitle = useRoute(state => state.pageTitle)
+  const navigate = useNavigate();
+
+  const currentPageTitle = useRoute((state) => state.pageTitle);
+  const canGoBack = isServer ? false : window.location.pathname !== "/";
 
   return (
     <SidebarProvider>
@@ -15,21 +24,35 @@ const AppLayout = () => {
       <SidebarInset className="h-screen overflow-hidden">
         <header className="flex h-16 shrink-0 items-center gap-2 border-b px-4 bg-white z-[1]">
           <SidebarTrigger className="-ml-1" />
-          <Separator
-            orientation="vertical"
-            className="mr-2 data-[orientation=vertical]:h-4"
-          />
-          {currentPageTitle ? <h2>{currentPageTitle}</h2> : null}
+          <div className="grow flex items-center">
+            {canGoBack ? (
+              <Button
+                className="-ml-4"
+                variant="ghost"
+                size="icon"
+                onClick={() =>
+                  window.history.state.idx > 0 ? navigate(-1) : navigate("/")
+                }
+              >
+                <ChevronLeft />
+              </Button>
+            ) : null}
+            {currentPageTitle ? <h2>{currentPageTitle}</h2> : null}
+          </div>
+          <div
+            id="headerActions"
+            className="shrink-0 flex items-center gap-2"
+          ></div>
         </header>
-        <ScrollArea className="relative flex h-full flex-col gap-4 p-4 pb-24">
+        <ScrollArea className="relative flex h-full flex-col gap-4 px-4 pb-24">
           <Outlet />
         </ScrollArea>
       </SidebarInset>
     </SidebarProvider>
-  )
-}
+  );
+};
 
-export default AppLayout
+export default AppLayout;
 
 export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
   let message = "Oops!";

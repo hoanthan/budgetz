@@ -17,6 +17,7 @@ import ErrorMessage from "./error-message"
 import { useMutation } from "@tanstack/react-query"
 import { supabase } from "~/supabase"
 import { useNavigate } from "react-router"
+import { toast } from "sonner"
 
 class SignupFormData {
   @IsDefined()
@@ -47,7 +48,14 @@ export function SignupForm({
       })
     },
     onSuccess: (res) => {
+      if (res.error) {
+        toast.error(res.error.message)
+        return
+      }
       navigate('/auth/login')
+    },
+    onError: (err) => {
+      toast.error(err.message)
     }
   })
 

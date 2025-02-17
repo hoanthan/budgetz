@@ -16,8 +16,8 @@ import { useMutation } from "@tanstack/react-query"
 import { supabase } from "~/supabase"
 import { omit } from "lodash-es"
 import { toast } from "sonner"
-import { endOfDay, startOfDay } from "date-fns"
-import { Tables } from "~/supabase/database.types"
+import { endOfDay, endOfMonth, startOfDay, startOfMonth } from "date-fns"
+import { Tables } from "supabase/database.types"
 
 class DateRangeDTO {
   @IsDefined()
@@ -49,14 +49,20 @@ class PlanFormData {
 const PlanForm: React.FC<{
   onSuccess?: (plan: Tables<'plans'>) => void
   onCancel?: () => void
-}> = ({ onSuccess, onCancel }) => {
+  initialData?: Tables<'plans'>
+}> = ({ onSuccess, onCancel, initialData }) => {
 
   const settings = useSettings(state => state.settings)
 
   const { handleSubmit, control, formState, register } = useForm<PlanFormData>({
     resolver: classValidatorResolver(PlanFormData),
     defaultValues: {
-      currency: settings?.currency
+      currency: settings?.currency,
+      ...initialData,
+      range: {
+        from: initialData?.start ? new Date(initialData.start) : startOfMonth(new Date()),
+        to: initialData?.end ? new Date(initialData.end) : endOfMonth(new Date())
+      }
     }
   })
 
@@ -68,9 +74,16 @@ const PlanForm: React.FC<{
       end: data.range?.to ? endOfDay(data.range.to).toISOString() : null,
     }).select(),
     onSuccess: (res) => {
+      if (res.error) {
+        toast.error(res.error.message)
+        return
+      }
       toast.success('Plan saved!')
       if (!res.data?.[0]) return;
       onSuccess?.(res.data[0])
+    },
+    onError: (err) => {
+      toast.error(err.message)
     }
   })
 

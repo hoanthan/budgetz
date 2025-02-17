@@ -9,7 +9,7 @@ import {
 } from "~/components/ui/card"
 import { Input } from "~/components/ui/input"
 import { Label } from "~/components/ui/label"
-import { Link, useNavigate } from "react-router"
+import { Link } from "react-router"
 import { IsDefined, IsEmail, MinLength } from "class-validator"
 import { useForm } from "react-hook-form"
 import { classValidatorResolver } from "@hookform/resolvers/class-validator"
@@ -33,7 +33,6 @@ export function LoginForm({
   className,
   ...props
 }: React.ComponentPropsWithoutRef<"div">) {
-  const navigate = useNavigate()
 
   const setSession = useAuth(state => state.setSession)
 
@@ -49,7 +48,7 @@ export function LoginForm({
     }),
     onSuccess: (res) => {
       setSession(res.data.session)
-      navigate('/')
+      window.location.assign('/')
     }
   })
 

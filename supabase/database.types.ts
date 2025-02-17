@@ -9,8 +9,48 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      budgets: {
+        Row: {
+          actual_amount: number
+          amount: number
+          created_at: string
+          id: number
+          name: string
+          plan_id: string
+          type: Database["public"]["Enums"]["BudgetType"] | null
+        }
+        Insert: {
+          actual_amount?: number
+          amount?: number
+          created_at?: string
+          id?: number
+          name: string
+          plan_id: string
+          type?: Database["public"]["Enums"]["BudgetType"] | null
+        }
+        Update: {
+          actual_amount?: number
+          amount?: number
+          created_at?: string
+          id?: number
+          name?: string
+          plan_id?: string
+          type?: Database["public"]["Enums"]["BudgetType"] | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "budgets_plan_id_fkey"
+            columns: ["plan_id"]
+            isOneToOne: false
+            referencedRelation: "plans"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       plans: {
         Row: {
+          actual_amount: number
+          amount: number
           created_at: string
           currency: string
           end: string | null
@@ -20,6 +60,8 @@ export type Database = {
           user_id: string | null
         }
         Insert: {
+          actual_amount?: number
+          amount?: number
           created_at?: string
           currency: string
           end?: string | null
@@ -29,6 +71,8 @@ export type Database = {
           user_id?: string | null
         }
         Update: {
+          actual_amount?: number
+          amount?: number
           created_at?: string
           currency?: string
           end?: string | null
@@ -60,15 +104,50 @@ export type Database = {
         }
         Relationships: []
       }
+      transactions: {
+        Row: {
+          amount: number
+          budget_id: number | null
+          created_at: string
+          id: number
+          name: string
+        }
+        Insert: {
+          amount?: number
+          budget_id?: number | null
+          created_at?: string
+          id?: number
+          name: string
+        }
+        Update: {
+          amount?: number
+          budget_id?: number | null
+          created_at?: string
+          id?: number
+          name?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "transaction_budget_id_fkey"
+            columns: ["budget_id"]
+            isOneToOne: false
+            referencedRelation: "budgets"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      get_plans_for_user: {
+        Args: Record<PropertyKey, never>
+        Returns: Record<string, unknown>
+      }
     }
     Enums: {
-      [_ in never]: never
+      BudgetType: "in" | "out"
     }
     CompositeTypes: {
       [_ in never]: never

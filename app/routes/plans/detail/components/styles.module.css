@@ -1,0 +1,6 @@
+.listItem {
+  @apply [&_h3]:w-full;
+  :global(.swipeable-list-item__content) {
+    @apply block;
+  }
+}
