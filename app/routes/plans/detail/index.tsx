@@ -49,7 +49,8 @@ const PlanDetailPage = () => {
         .from("budgets")
         .select()
         .eq("plan_id", params.id!)
-        .select("*, transactions(*)"),
+        .select("*, transactions(*)")
+        .order("type"),
     select: (res) => res.data,
   });
 
@@ -60,22 +61,43 @@ const PlanDetailPage = () => {
   } = useQuery({
     queryKey: ["calcBudgetActualAmount", budgets?.map((b) => b.id)],
     enabled: Boolean(budgets?.length),
-    queryFn: () =>
-      supabase.functions.invoke("calculateBudgetsActualAmount", {
-        body: {
-          budgetIds: budgets!.map((b) => b.id),
-        },
-      }),
+    queryFn: async () =>
+      supabase
+        .from("transactions")
+        .select()
+        .in(
+          "budget_id",
+          budgets!.map((budget) => budget.id)
+        )
+        .not("budget_id", "is", null),
+    select: (res) => {
+      return {
+        data:
+          res.data?.reduce<Record<number, number>>((map, transaction) => {
+            map[transaction.budget_id!] = map[transaction.budget_id!] ?? 0;
+            map[transaction.budget_id!] += transaction.amount;
+
+            return map;
+          }, {}) ?? {},
+      };
+    },
   });
 
   const estimatedAmount = useMemo(() => {
-    return sumBy(budgets, (budget) =>
-      budget.type === "in" ? budget.amount : budget.amount * -1
+    return sumBy(
+      budgets?.filter((budget) => budget.type === "out"),
+      (budget) => budget.amount
     );
   }, [budgets]);
 
   const actualAmount = useMemo(() => {
-    return sum(Object.values(budgetsActualAmount?.data ?? {}));
+    return sumBy(
+      budgets?.filter((budget) => budget.type === "out"),
+      (budget) => {
+        const amount = budgetsActualAmount?.data?.[budget.id] ?? 0;
+        return amount;
+      }
+    );
   }, [budgets, budgetsActualAmount?.data]);
 
   if (isLoading) return <PageSkeleton />;
@@ -119,6 +141,7 @@ const PlanDetailPage = () => {
             isLoading={isLoadingBudgets}
             isLoadingActualAmount={isLoadingBudgetAmount}
             toggleForm={toggleBudgetForm}
+            selectBudget={setActiveBudget}
             budgetMap={budgetsActualAmount?.data}
             budgets={budgets ?? undefined}
             onRefetchActualAmount={refetchBudgetsActualAmount}

@@ -11,7 +11,6 @@ export type Database = {
     Tables: {
       budgets: {
         Row: {
-          actual_amount: number
           amount: number
           created_at: string
           id: number
@@ -20,7 +19,6 @@ export type Database = {
           type: Database["public"]["Enums"]["BudgetType"] | null
         }
         Insert: {
-          actual_amount?: number
           amount?: number
           created_at?: string
           id?: number
@@ -29,7 +27,6 @@ export type Database = {
           type?: Database["public"]["Enums"]["BudgetType"] | null
         }
         Update: {
-          actual_amount?: number
           amount?: number
           created_at?: string
           id?: number
@@ -49,8 +46,6 @@ export type Database = {
       }
       plans: {
         Row: {
-          actual_amount: number
-          amount: number
           created_at: string
           currency: string
           end: string | null
@@ -60,8 +55,6 @@ export type Database = {
           user_id: string | null
         }
         Insert: {
-          actual_amount?: number
-          amount?: number
           created_at?: string
           currency: string
           end?: string | null
@@ -71,8 +64,6 @@ export type Database = {
           user_id?: string | null
         }
         Update: {
-          actual_amount?: number
-          amount?: number
           created_at?: string
           currency?: string
           end?: string | null

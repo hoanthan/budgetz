@@ -75,12 +75,13 @@ export default function HomePage() {
     return (
       <TrailingActions>
         <SwipeAction onClick={() => deletePlan(plan.id)} Tag="div">
-          <div
-            role="button"
+          <Button
+            variant="ghost"
+            size="icon"
             className="h-full px-2 text-destructive text-center flex items-center justify-center font-medium select-none"
           >
             <Trash />
-          </div>
+          </Button>
         </SwipeAction>
       </TrailingActions>
     );

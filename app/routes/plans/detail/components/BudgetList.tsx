@@ -1,4 +1,4 @@
-import { Trash } from "lucide-react";
+import { Edit, Trash } from "lucide-react";
 import { FaPlus, FaSpinner } from "react-icons/fa6";
 import {
   SwipeableList,
@@ -32,6 +32,7 @@ type BudgetListProps = {
   budgetMap?: Record<number, number>;
   isLoadingActualAmount: boolean;
   onRefetchActualAmount?: () => void;
+  selectBudget?: (budget: Tables<"budgets">) => void;
   toggleForm: (val: boolean) => void;
   onDeleted?: (id: number) => void;
 };
@@ -44,6 +45,7 @@ const BudgetList: React.FC<BudgetListProps> = ({
   toggleForm,
   onRefetchActualAmount,
   onDeleted,
+  selectBudget,
 }) => {
   const {
     mutate: deleteBudget,
@@ -69,13 +71,28 @@ const BudgetList: React.FC<BudgetListProps> = ({
   const renderItemActions = (budget: Tables<"budgets">) => {
     return (
       <TrailingActions>
+        <SwipeAction
+          onClick={() => {
+            selectBudget?.(budget);
+            toggleForm(true);
+          }}
+        >
+          <Button
+            variant="ghost"
+            size="icon"
+            className="m-auto px-2 text-center flex items-center justify-center font-medium select-none"
+          >
+            <Edit />
+          </Button>
+        </SwipeAction>
         <SwipeAction onClick={() => deleteBudget(budget.id)} Tag="div">
-          <div
-            role="button"
-            className="h-full px-2 text-destructive text-center flex items-center justify-center font-medium select-none"
+          <Button
+            variant="ghost"
+            size="icon"
+            className="m-auto px-2 text-destructive text-center flex items-center justify-center font-medium select-none"
           >
             <Trash />
-          </div>
+          </Button>
         </SwipeAction>
       </TrailingActions>
     );

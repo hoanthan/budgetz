@@ -48,6 +48,23 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <Meta />
         <Links />
+        <style
+          dangerouslySetInnerHTML={{
+            __html: `
+            body {
+              width: 100vw;
+              height: 100vh;
+              overflow-y: auto;
+              overflow-x: hidden;
+              overscroll-behavior-y: none;
+              caret-color: transparent;
+            }
+            input {
+              caret-color: auto;
+            }
+          `,
+          }}
+        />
       </head>
       <body className="z-0">
         <QueryClientProvider client={queryClient}>

@@ -2,11 +2,14 @@ import { Tables } from "supabase/database.types";
 import { Button } from "../ui/button";
 import TransactionFormDrawer from "../transaction/transaction-form-drawer";
 import { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { supabase } from "~/supabase/index";
 import { Skeleton } from "../ui/skeleton";
 import Currency from "../ui/currency";
 import { formatDate } from "~/lib/utils";
+import { Edit, Trash } from "lucide-react";
+import { orderBy } from "lodash-es";
+import { toast } from "sonner";
 
 const BudgetSummary: React.FC<{
   budget: Tables<"budgets"> & {
@@ -24,14 +27,44 @@ const BudgetSummary: React.FC<{
   } = useQuery({
     queryKey: ["transactions", { budget: budget.id }],
     queryFn: async () =>
-      await supabase.from("transactions").select().eq("budget_id", budget.id),
+      await supabase
+        .from("transactions")
+        .select()
+        .eq("budget_id", budget.id)
+        .order("created_at"),
     select: (res) => res.data,
     initialData: {
-      data: budget.transactions,
+      data: orderBy(
+        budget.transactions,
+        (transaction) => transaction.created_at,
+        "asc"
+      ),
       error: null,
       count: null,
       status: 200,
       statusText: "",
+    },
+  });
+
+  const {
+    mutate: deleteTransaction,
+    isPending: isDeletingTransaction,
+    variables: deletingTransactionId,
+  } = useMutation({
+    mutationKey: ["deleteTransaction"],
+    mutationFn: async (id: number) =>
+      await supabase.from("transactions").delete().eq("id", id),
+    onSuccess: (res) => {
+      if (res.error) {
+        toast.error(res.error.message);
+        return;
+      }
+      toast.success("Deleted transaction");
+      refetchTransactions();
+      onRefetchActualAmount?.();
+    },
+    onError: (err) => {
+      toast.error(err.message);
     },
   });
 
@@ -65,13 +98,42 @@ const BudgetSummary: React.FC<{
                       {formatDate(transaction.created_at)}
                     </small>
                   </div>
-                  <p className="shrink-0">
-                    <Currency>
-                      {budget.type === "in"
-                        ? transaction.amount
-                        : transaction.amount * -1}
-                    </Currency>
-                  </p>
+                  <div>
+                    <p className="shrink-0">
+                      <Currency>
+                        {budget.type === "in"
+                          ? transaction.amount
+                          : transaction.amount * -1}
+                      </Currency>
+                    </p>
+                    <div className="flex gap-2 justify-end items-center">
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="m-auto px-2 text-center flex items-center justify-center font-medium select-none"
+                        onClick={() => {
+                          setActiveTransaction(transaction);
+                          toggleTransactionForm(true);
+                        }}
+                      >
+                        <Edit />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="m-auto px-2 text-destructive text-center flex items-center justify-center font-medium select-none"
+                        onClick={() => {
+                          deleteTransaction(transaction.id);
+                        }}
+                        loading={
+                          isDeletingTransaction &&
+                          deletingTransactionId === transaction.id
+                        }
+                      >
+                        <Trash />
+                      </Button>
+                    </div>
+                  </div>
                 </div>
               ))
             )}

@@ -15,7 +15,7 @@ export function formatCurrency(
     maximumFractionDigits: 2,
     style: "currency",
     compactDisplay: "short",
-    notation: "compact",
+    // notation: "compact",
     ...options,
   });
 
