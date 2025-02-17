@@ -132,6 +132,7 @@ const BudgetForm: React.FC<{
           {...methods.register("amount")}
           autoComplete="off"
           min={0}
+          inputMode="numeric"
         />
         <ErrorMessage formState={methods.formState} name="amount" />
       </div>
