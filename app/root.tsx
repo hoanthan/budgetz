@@ -41,6 +41,7 @@ export function meta({}: Route.MetaArgs) {
   return [
     { title: "Budgetz" },
     { name: "description", content: "Manage your budgetz!" },
+    { name: "google-adsense-account", content: "ca-pub-3276323583222726" },
   ];
 }
 
