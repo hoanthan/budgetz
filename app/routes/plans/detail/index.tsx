@@ -105,51 +105,57 @@ const PlanDetailPage = () => {
   if (!plan) return null;
 
   return (
-    <>
-      {createPortal(
-        <PlanFormDrawer plan={plan ?? undefined} onSuccess={() => refetch()}>
-          <Button variant="ghost" size="icon">
-            <Edit className="size-5" />
-          </Button>
-        </PlanFormDrawer>,
-        document.getElementById("headerActions")!
+    <PlanFormDrawer plan={plan ?? undefined} onSuccess={() => refetch()}>
+      {({ toggle: togglePlanForm }) => (
+        <>
+          {createPortal(
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => togglePlanForm(true)}
+            >
+              <Edit className="size-5" />
+            </Button>,
+            document.getElementById("headerActions")!
+          )}
+          <div className="sticky top-0 left-0 py-2 bg-white z-[1] pr-8 flex flex-col gap-1">
+            <div className="flex justify-between font-medium text-muted-foreground text-xs">
+              <p>Estimated:</p>
+              <p className="text-right">
+                <Currency>{estimatedAmount}</Currency>
+              </p>
+            </div>
+            <div className="flex justify-between font-medium">
+              <p>Actual:</p>
+              <p className="text-right">
+                <Currency>{actualAmount}</Currency>
+              </p>
+            </div>
+          </div>
+          <BudgetFormDrawer
+            planId={plan.id}
+            budget={activeBudget}
+            onSuccess={() => refetchBudgets()}
+            onToggle={(open) => {
+              if (!open) setActiveBudget(undefined);
+            }}
+          >
+            {({ toggle: toggleBudgetForm }) => (
+              <BudgetList
+                isLoading={isLoadingBudgets}
+                isLoadingActualAmount={isLoadingBudgetAmount}
+                toggleForm={toggleBudgetForm}
+                selectBudget={setActiveBudget}
+                budgetMap={budgetsActualAmount?.data}
+                budgets={budgets ?? undefined}
+                onRefetchActualAmount={refetchBudgetsActualAmount}
+                onDeleted={() => refetchBudgets()}
+              />
+            )}
+          </BudgetFormDrawer>
+        </>
       )}
-      <div className="sticky top-0 left-0 py-2 bg-white z-[1] pr-8 flex flex-col gap-1">
-        <div className="flex justify-between font-medium text-muted-foreground text-xs">
-          <p>Estimated:</p>
-          <p className="text-right">
-            <Currency>{estimatedAmount}</Currency>
-          </p>
-        </div>
-        <div className="flex justify-between font-medium">
-          <p>Actual:</p>
-          <p className="text-right">
-            <Currency>{actualAmount}</Currency>
-          </p>
-        </div>
-      </div>
-      <BudgetFormDrawer
-        planId={plan.id}
-        budget={activeBudget}
-        onSuccess={() => refetchBudgets()}
-        onToggle={(open) => {
-          if (!open) setActiveBudget(undefined);
-        }}
-      >
-        {({ toggle: toggleBudgetForm }) => (
-          <BudgetList
-            isLoading={isLoadingBudgets}
-            isLoadingActualAmount={isLoadingBudgetAmount}
-            toggleForm={toggleBudgetForm}
-            selectBudget={setActiveBudget}
-            budgetMap={budgetsActualAmount?.data}
-            budgets={budgets ?? undefined}
-            onRefetchActualAmount={refetchBudgetsActualAmount}
-            onDeleted={() => refetchBudgets()}
-          />
-        )}
-      </BudgetFormDrawer>
-    </>
+    </PlanFormDrawer>
   );
 };
 

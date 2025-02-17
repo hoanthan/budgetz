@@ -12,13 +12,15 @@ import { Tables } from "supabase/database.types";
 import { useToggle } from "@reactuses/core";
 import { useCallback } from "react";
 
-export const PlanFormDrawer: React.FC<
-  React.PropsWithChildren<{
-    onSuccess?: (plan: Tables<"plans">) => void;
-    onToggle?: (val: boolean) => void;
-    plan?: Tables<"plans">;
-  }>
-> = ({ children, onSuccess, plan, onToggle }) => {
+export const PlanFormDrawer: React.FC<{
+  onSuccess?: (plan: Tables<"plans">) => void;
+  onToggle?: (val: boolean) => void;
+  plan?: Tables<"plans">;
+  children: (props: {
+    opened: boolean;
+    toggle: (val: boolean) => void;
+  }) => React.ReactNode;
+}> = ({ children, onSuccess, plan, onToggle }) => {
   const [opened, toggle] = useToggle(false);
 
   const onSaveSuccess = useCallback((data: Tables<"plans">) => {
@@ -36,7 +38,7 @@ export const PlanFormDrawer: React.FC<
 
   return (
     <Drawer open={opened} onOpenChange={toggle}>
-      <DrawerTrigger asChild>{children}</DrawerTrigger>
+      <DrawerTrigger asChild>{children({ opened, toggle })}</DrawerTrigger>
       <DrawerContent>
         <div className="mx-auto w-full max-w-sm">
           <DrawerHeader>

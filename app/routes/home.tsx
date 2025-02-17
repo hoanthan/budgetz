@@ -18,13 +18,14 @@ import {
   Type,
 } from "react-swipeable-list";
 import "react-swipeable-list/dist/styles.css";
-import { Trash } from "lucide-react";
+import { Edit, Trash } from "lucide-react";
 import { toast } from "sonner";
 import PageSkeleton from "~/components/page-skeleton";
 
 export default function HomePage() {
   usePageTitle("Budgetz");
   const [search, setSearch] = useState("");
+  const [activePlan, setActivePlan] = useState<Tables<"plans">>();
 
   const searchText = useDebounce(search, 400);
 
@@ -71,9 +72,27 @@ export default function HomePage() {
     },
   });
 
-  const renderItemActions = (plan: Tables<"plans">) => {
+  const renderItemActions = (
+    plan: Tables<"plans">,
+    togglePlanForm: (open: boolean) => void
+  ) => {
     return (
       <TrailingActions>
+        <SwipeAction
+          onClick={() => {
+            setActivePlan(plan);
+            togglePlanForm(true);
+          }}
+          Tag="div"
+        >
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-full px-2 text-center flex items-center justify-center font-medium select-none"
+          >
+            <Edit className="size-5" />
+          </Button>
+        </SwipeAction>
         <SwipeAction onClick={() => deletePlan(plan.id)} Tag="div">
           <Button
             variant="ghost"
@@ -90,72 +109,81 @@ export default function HomePage() {
   if (isLoading) return <PageSkeleton />;
 
   return (
-    <div className="flex flex-col gap-6 py-4">
-      <PlanFormDrawer onSuccess={() => refetch()}>
-        <Button
-          size="icon-lg"
-          className="fixed bottom-12 right-6 rounded-full w-10 h-10"
-        >
-          <FaPlus />
-        </Button>
-      </PlanFormDrawer>
-      <div className="shrink-0">
-        <Input
-          placeholder="Search plans..."
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-        />
-      </div>
-      <SwipeableList className="grow grid" type={Type.IOS}>
-        {plans?.data?.map((plan) => (
-          <SwipeableListItem
-            key={plan.id}
-            trailingActions={renderItemActions(plan)}
-            className="w-full"
+    <PlanFormDrawer
+      plan={activePlan}
+      onSuccess={() => refetch()}
+      onToggle={(opened) => {
+        if (!opened) setActivePlan(undefined);
+      }}
+    >
+      {({ toggle: togglePlanForm }) => (
+        <div className="flex flex-col gap-6 py-4">
+          <Button
+            size="icon-lg"
+            className="fixed bottom-12 right-6 rounded-full w-10 h-10"
+            onClick={() => togglePlanForm(true)}
           >
-            <Link
-              to={`/plans/${plan.id}`}
-              className="border-b border-gray-300 last:border-b-0 border-solid w-full h-full aria-disabled:pointer-events-none"
-              aria-disabled={deletingPlanId === plan.id && isDeleting}
-            >
-              <div className="py-2 flex justify-between items-center">
-                <div>
-                  <p className="font-medium grow">{plan.name}</p>
-                  <div className="text-sm text-muted-foreground">
-                    <div className="flex justify-between items-center">
-                      <div className="grow flex gap-2">
-                        <p>
-                          {plan.start ? (
-                            <span>
-                              {format(new Date(plan.start), "LLL dd, y")}
-                            </span>
-                          ) : null}
-                          {plan.end ? (
-                            <>
-                              {" "}
-                              -{" "}
-                              <span>
-                                {format(new Date(plan.end), "LLL dd, y")}
-                              </span>
-                            </>
-                          ) : null}
-                        </p>
+            <FaPlus />
+          </Button>
+          <div className="shrink-0">
+            <Input
+              placeholder="Search plans..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+            />
+          </div>
+          <SwipeableList className="grow grid" type={Type.IOS}>
+            {plans?.data?.map((plan) => (
+              <SwipeableListItem
+                key={plan.id}
+                trailingActions={renderItemActions(plan, togglePlanForm)}
+                className="w-full"
+              >
+                <Link
+                  to={`/plans/${plan.id}`}
+                  className="border-b border-gray-300 last:border-b-0 border-solid w-full h-full aria-disabled:pointer-events-none"
+                  aria-disabled={deletingPlanId === plan.id && isDeleting}
+                >
+                  <div className="py-2 flex justify-between items-center">
+                    <div>
+                      <p className="font-medium grow">{plan.name}</p>
+                      <div className="text-sm text-muted-foreground">
+                        <div className="flex justify-between items-center">
+                          <div className="grow flex gap-2">
+                            <p>
+                              {plan.start ? (
+                                <span>
+                                  {format(new Date(plan.start), "LLL dd, y")}
+                                </span>
+                              ) : null}
+                              {plan.end ? (
+                                <>
+                                  {" "}
+                                  -{" "}
+                                  <span>
+                                    {format(new Date(plan.end), "LLL dd, y")}
+                                  </span>
+                                </>
+                              ) : null}
+                            </p>
+                          </div>
+                        </div>
                       </div>
                     </div>
+                    <div className="shrink-0">
+                      {deletingPlanId === plan.id && isDeleting ? (
+                        <p className="text-destructive flex items-center gap-1 text-xs">
+                          Deleting <FaSpinner className="animate-spin" />
+                        </p>
+                      ) : null}
+                    </div>
                   </div>
-                </div>
-                <div className="shrink-0">
-                  {deletingPlanId === plan.id && isDeleting ? (
-                    <p className="text-destructive flex items-center gap-1 text-xs">
-                      Deleting <FaSpinner className="animate-spin" />
-                    </p>
-                  ) : null}
-                </div>
-              </div>
-            </Link>
-          </SwipeableListItem>
-        ))}
-      </SwipeableList>
-    </div>
+                </Link>
+              </SwipeableListItem>
+            ))}
+          </SwipeableList>
+        </div>
+      )}
+    </PlanFormDrawer>
   );
 }
