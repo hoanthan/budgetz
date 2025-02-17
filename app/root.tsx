@@ -72,6 +72,10 @@ export function Layout({ children }: { children: React.ReactNode }) {
         />
       </head>
       <body className="z-0">
+        <div
+          id="floatingActions"
+          className="fixed z-10 bottom-12 right-6 flex flex-col gap-2"
+        />
         <QueryClientProvider client={queryClient}>
           {children}
           <ReactQueryDevtools

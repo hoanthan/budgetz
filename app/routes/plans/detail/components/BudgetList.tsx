@@ -23,6 +23,7 @@ import "react-swipeable-list/dist/styles.css";
 import { useMutation } from "@tanstack/react-query";
 import { supabase } from "~/supabase";
 import { toast } from "sonner";
+import { createPortal } from "react-dom";
 
 type BudgetListProps = {
   isLoading: boolean;
@@ -170,13 +171,16 @@ const BudgetList: React.FC<BudgetListProps> = ({
           </SwipeableList>
         </Accordion>
       ) : null}
-      <Button
-        size="icon-lg"
-        className="fixed bottom-12 right-6 rounded-full w-10 h-10"
-        onClick={() => toggleForm(true)}
-      >
-        <FaPlus />
-      </Button>
+      {createPortal(
+        <Button
+          size="icon-lg"
+          className="rounded-full w-10 h-10"
+          onClick={() => toggleForm(true)}
+        >
+          <FaPlus />
+        </Button>,
+        document.getElementById("floatingActions")!
+      )}
     </div>
   );
 };

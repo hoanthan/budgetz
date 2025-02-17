@@ -21,6 +21,7 @@ import "react-swipeable-list/dist/styles.css";
 import { Edit, Trash } from "lucide-react";
 import { toast } from "sonner";
 import PageSkeleton from "~/components/page-skeleton";
+import { createPortal } from "react-dom";
 
 export default function HomePage() {
   usePageTitle("Budgetz");
@@ -116,13 +117,16 @@ export default function HomePage() {
     >
       {({ toggle: togglePlanForm }) => (
         <div className="flex flex-col gap-6 py-4">
-          <Button
-            size="icon-lg"
-            className="fixed bottom-12 right-6 rounded-full w-10 h-10"
-            onClick={() => togglePlanForm(true)}
-          >
-            <FaPlus />
-          </Button>
+          {createPortal(
+            <Button
+              size="icon-lg"
+              className="rounded-full w-10 h-10"
+              onClick={() => togglePlanForm(true)}
+            >
+              <FaPlus />
+            </Button>,
+            document.getElementById("floatingActions")!
+          )}
           <div className="shrink-0">
             <Input
               placeholder="Search plans..."
