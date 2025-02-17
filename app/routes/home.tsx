@@ -92,7 +92,10 @@ export default function HomePage() {
   return (
     <div className="flex flex-col gap-6 py-4">
       <PlanFormDrawer onSuccess={() => refetch()}>
-        <Button className="fixed bottom-6 right-6 rounded-full w-10 h-10">
+        <Button
+          size="icon-lg"
+          className="fixed bottom-12 right-6 rounded-full w-10 h-10"
+        >
           <FaPlus />
         </Button>
       </PlanFormDrawer>

@@ -171,7 +171,8 @@ const BudgetList: React.FC<BudgetListProps> = ({
         </Accordion>
       ) : null}
       <Button
-        className="fixed bottom-6 right-6 rounded-full w-10 h-10"
+        size="icon-lg"
+        className="fixed bottom-12 right-6 rounded-full w-10 h-10"
         onClick={() => toggleForm(true)}
       >
         <FaPlus />
