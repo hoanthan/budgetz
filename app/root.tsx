@@ -78,7 +78,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
             buttonPosition="bottom-left"
           />
         </QueryClientProvider>
-        <Toaster />
+        <Toaster position="top-center" />
         <ScrollRestoration />
         <Scripts />
       </body>
