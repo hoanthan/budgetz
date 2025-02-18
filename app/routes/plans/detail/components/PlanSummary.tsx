@@ -8,11 +8,6 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "~/components/ui/accordion";
-import {
-  Collapsible,
-  CollapsibleContent,
-  CollapsibleTrigger,
-} from "~/components/ui/collapsible";
 import Currency from "~/components/ui/currency";
 import { cn } from "~/lib/utils";
 
@@ -69,7 +64,7 @@ const PlanSummary: React.FC<{
     >
       <AccordionItem value="estimated" className="border-0">
         <AccordionTrigger className="w-full py-1 items-center">
-          <div className="w-full flex justify-between items-center text-xs">
+          <div className="w-full flex justify-between items-center text-sm">
             <p className="text-muted-foreground">Estimated</p>
             <p
               className={cn({
@@ -96,7 +91,7 @@ const PlanSummary: React.FC<{
       </AccordionItem>
       <AccordionItem value="actual" className="border-0">
         <AccordionTrigger className="w-full py-1 items-center">
-          <div className="w-full flex justify-between items-center text-xs">
+          <div className="w-full flex justify-between items-center text-sm">
             <p className="text-muted-foreground">Actual</p>
             <p
               className={cn({
@@ -121,56 +116,6 @@ const PlanSummary: React.FC<{
           </div>
         </AccordionContent>
       </AccordionItem>
-      {/* <CollapsibleTrigger asChild>
-        <div className="grid grid-cols-2 text-xs" role="button">
-          <div>
-            <p className="text-muted-foreground">Estimated</p>
-            <p
-              className={cn({
-                "text-destructive": estimatedBalance < 0,
-                "text-green-600": estimatedBalance > 0,
-              })}
-            >
-              <Currency>{estimatedBalance}</Currency>
-            </p>
-          </div>
-          <div className="text-right">
-            <p className="text-muted-foreground">Actual</p>
-            <p
-              className={cn({
-                "text-destructive": actualBalance < 0,
-                "text-green-600": actualBalance > 0,
-              })}
-            >
-              <Currency>{actualInAmount - actualOutAmount}</Currency>
-            </p>
-          </div>
-        </div>
-      </CollapsibleTrigger>
-      <CollapsibleContent>
-        <div className="grid grid-cols-2 text-xs">
-          <div>
-            <p className="text-green-600 flex gap-1 items-center">
-              <Currency style="decimal">{estimatedInAmount}</Currency>{" "}
-              <MoveDownLeft size={12} />
-            </p>
-            <p className="text-destructive flex gap-1 items-center">
-              <Currency style="decimal">{estimatedOutAmount}</Currency>{" "}
-              <MoveUpRight size={12} />
-            </p>
-          </div>
-          <div className="text-right">
-            <p className="text-green-600 flex gap-1 items-center justify-end">
-              <MoveDownLeft size={12} />{" "}
-              <Currency style="decimal">{actualInAmount}</Currency>
-            </p>
-            <p className="text-destructive flex gap-1 items-center justify-end">
-              <MoveUpRight size={12} />{" "}
-              <Currency style="decimal">{actualOutAmount}</Currency>
-            </p>
-          </div>
-        </div>
-      </CollapsibleContent> */}
     </Accordion>
   );
 };
