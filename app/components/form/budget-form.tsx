@@ -118,7 +118,7 @@ const BudgetForm: React.FC<{
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="in">Income</SelectItem>
-                <SelectItem value="out">Expend</SelectItem>
+                <SelectItem value="out">Expense</SelectItem>
               </SelectContent>
             </Select>
           )}

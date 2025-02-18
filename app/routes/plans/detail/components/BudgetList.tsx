@@ -1,4 +1,4 @@
-import { Edit, Trash } from "lucide-react";
+import { Edit, MoveDownLeft, MoveUpRight, Trash } from "lucide-react";
 import { FaPlus, FaSpinner } from "react-icons/fa6";
 import {
   SwipeableList,
@@ -24,6 +24,7 @@ import { useMutation } from "@tanstack/react-query";
 import { supabase } from "~/supabase";
 import { toast } from "sonner";
 import { createPortal } from "react-dom";
+import { Badge } from "~/components/ui/badge";
 
 type BudgetListProps = {
   isLoading: boolean;
@@ -100,7 +101,7 @@ const BudgetList: React.FC<BudgetListProps> = ({
   };
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex flex-col gap-4 mt-2">
       {isLoading ? (
         <div className="flex flex-col space-y-3">
           <Skeleton className="h-[125px] w-[250px] rounded-xl" />
@@ -127,35 +128,44 @@ const BudgetList: React.FC<BudgetListProps> = ({
                     className="budget-list-item"
                   >
                     <AccordionTrigger className="w-full">
-                      <p className="grow">{budget.name}</p>
-                      <div className="text-right">
-                        {isDeletingBudget && deletingBudgetId === budget.id ? (
-                          <p className="text-destructive flex items-center gap-1 text-xs">
-                            Deleting <FaSpinner className="animate-spin" />
-                          </p>
-                        ) : (
-                          <>
-                            <p>
-                              <Currency>
-                                {budget.type === "in"
-                                  ? budget.amount
-                                  : budget.amount * -1}
-                              </Currency>
+                      <div className="flex w-full justify-between">
+                        <div>
+                          <p className="grow">{budget.name}</p>
+                          {budget.type === "in" ? (
+                            <Badge className="mt-1 text-xs flex gap-1 items-center">
+                              <MoveDownLeft size={12} /> Income
+                            </Badge>
+                          ) : (
+                            <Badge
+                              variant="secondary"
+                              className="mt-1 text-xs flex gap-1 items-center"
+                            >
+                              <MoveUpRight /> Expense
+                            </Badge>
+                          )}
+                        </div>
+                        <div className="text-right">
+                          {isDeletingBudget &&
+                          deletingBudgetId === budget.id ? (
+                            <p className="text-destructive flex items-center gap-1 text-xs">
+                              Deleting <FaSpinner className="animate-spin" />
                             </p>
-                            <p className="text-muted-foreground font-normal flex items-center justify-end text-right">
-                              actual:{" "}
-                              {isLoadingActualAmount ? (
-                                <FaSpinner className="animate-spin ml-2" />
-                              ) : (
-                                <Currency>
-                                  {budget.type === "in"
-                                    ? actualAmount
-                                    : actualAmount * -1}
-                                </Currency>
-                              )}
-                            </p>
-                          </>
-                        )}
+                          ) : (
+                            <>
+                              <p>
+                                <Currency>{budget.amount}</Currency>
+                              </p>
+                              <p className="text-muted-foreground font-normal flex items-center justify-end text-right">
+                                actual:{" "}
+                                {isLoadingActualAmount ? (
+                                  <FaSpinner className="animate-spin ml-2" />
+                                ) : (
+                                  <Currency>{actualAmount}</Currency>
+                                )}
+                              </p>
+                            </>
+                          )}
+                        </div>
                       </div>
                     </AccordionTrigger>
                     <AccordionContent className="border-t border-gray-100 border-solid">

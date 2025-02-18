@@ -16,7 +16,7 @@ export type Database = {
           id: number
           name: string
           plan_id: string
-          type: Database["public"]["Enums"]["BudgetType"] | null
+          type: Database["public"]["Enums"]["BudgetType"]
         }
         Insert: {
           amount?: number
@@ -24,7 +24,7 @@ export type Database = {
           id?: number
           name: string
           plan_id: string
-          type?: Database["public"]["Enums"]["BudgetType"] | null
+          type?: Database["public"]["Enums"]["BudgetType"]
         }
         Update: {
           amount?: number
@@ -32,7 +32,7 @@ export type Database = {
           id?: number
           name?: string
           plan_id?: string
-          type?: Database["public"]["Enums"]["BudgetType"] | null
+          type?: Database["public"]["Enums"]["BudgetType"]
         }
         Relationships: [
           {

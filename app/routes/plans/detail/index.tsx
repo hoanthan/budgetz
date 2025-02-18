@@ -14,6 +14,8 @@ import BudgetList from "./components/BudgetList";
 import Currency from "~/components/ui/currency";
 import { sum, sumBy } from "lodash-es";
 import PageSkeleton from "~/components/page-skeleton";
+import { cn } from "~/lib/utils";
+import PlanSummary from "./components/PlanSummary";
 
 const PlanDetailPage = () => {
   const params = useParams<{ id: string }>();
@@ -83,23 +85,6 @@ const PlanDetailPage = () => {
     },
   });
 
-  const estimatedAmount = useMemo(() => {
-    return sumBy(
-      budgets?.filter((budget) => budget.type === "out"),
-      (budget) => budget.amount
-    );
-  }, [budgets]);
-
-  const actualAmount = useMemo(() => {
-    return sumBy(
-      budgets?.filter((budget) => budget.type === "out"),
-      (budget) => {
-        const amount = budgetsActualAmount?.data?.[budget.id] ?? 0;
-        return amount;
-      }
-    );
-  }, [budgets, budgetsActualAmount?.data]);
-
   if (isLoading) return <PageSkeleton />;
 
   if (!plan) return null;
@@ -118,20 +103,10 @@ const PlanDetailPage = () => {
             </Button>,
             document.getElementById("headerActions")!
           )}
-          <div className="sticky top-0 left-0 py-2 bg-white z-[1] pr-8 flex flex-col gap-1">
-            <div className="flex justify-between font-medium text-muted-foreground text-xs">
-              <p>Estimated:</p>
-              <p className="text-right">
-                <Currency>{estimatedAmount}</Currency>
-              </p>
-            </div>
-            <div className="flex justify-between font-medium">
-              <p>Actual:</p>
-              <p className="text-right">
-                <Currency>{actualAmount}</Currency>
-              </p>
-            </div>
-          </div>
+          <PlanSummary
+            budgets={budgets ?? undefined}
+            budgetsActualAmount={budgetsActualAmount?.data}
+          />
           <BudgetFormDrawer
             planId={plan.id}
             budget={activeBudget}

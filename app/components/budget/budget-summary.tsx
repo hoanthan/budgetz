@@ -100,11 +100,7 @@ const BudgetSummary: React.FC<{
                   </div>
                   <div>
                     <p className="shrink-0 text-right">
-                      <Currency>
-                        {budget.type === "in"
-                          ? transaction.amount
-                          : transaction.amount * -1}
-                      </Currency>
+                      <Currency>{transaction.amount}</Currency>
                     </p>
                     <div className="flex gap-2 justify-end items-center">
                       <Button

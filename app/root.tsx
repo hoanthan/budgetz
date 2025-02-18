@@ -92,59 +92,46 @@ export function Layout({ children }: { children: React.ReactNode }) {
 }
 
 export default function App() {
-  const { data: session, isFetched: isFetchedSession } = useQuery({
-    queryKey: ["session"],
-    queryFn: () => supabase.auth.getSession(),
-    select: (res) => res.data.session,
-  });
-
-  const { data: settings, isFetched: isFetchedSettings } = useQuery({
-    queryKey: ["settings", session?.user?.id],
-    enabled: Boolean(session?.user.id),
-    queryFn: async () => {
-      const res = await supabase
-        .from("settings")
-        .select()
-        .eq("user_id", session!.user.id)
-        .maybeSingle();
-
-      return res;
-    },
-    select: (res) => res.data,
-  });
-
   const setInitialized = useAuth((state) => state.setInitialized);
   const setSession = useAuth((state) => state.setSession);
   const isAuthInitialized = useAuth((state) => state.isInitialized);
-
   const setSettings = useSettings((state) => state.setSettings);
 
-  useEffect(() => {
-    setSession(session ?? null);
-  }, [session]);
+  const { data: session, isFetched: isFetchedSession } = useQuery({
+    queryKey: ["session"],
+    queryFn: async () => {
+      const authSession = await supabase.auth
+        .getSession()
+        .then((res) => res.data.session);
 
-  useEffect(() => {
-    setSettings(settings ?? null);
-  }, [settings]);
+      setSession(authSession ?? null);
 
-  useEffect(() => {
-    if (isFetchedSession) {
-      if (!session) {
-        setInitialized(true);
-      } else if (isFetchedSettings) {
-        setInitialized(true);
+      if (authSession) {
+        const res = await supabase
+          .from("settings")
+          .select()
+          .eq("user_id", authSession!.user.id)
+          .maybeSingle();
+
+        setSettings(res.data);
       }
-    }
-  }, [isFetchedSession, isFetchedSettings]);
+
+      setInitialized(true);
+
+      return authSession;
+    },
+  });
+
+  if (!isAuthInitialized)
+    return (
+      <div className="fixed top-0 left-0 w-screen h-screen z-[1] bg-white">
+        <ActivityIndicator />
+      </div>
+    );
 
   return (
     <>
       <Outlet />
-      {!isAuthInitialized ? (
-        <div className="fixed top-0 left-0 w-screen h-screen z-[1] bg-white">
-          <ActivityIndicator />
-        </div>
-      ) : null}
     </>
   );
 }
