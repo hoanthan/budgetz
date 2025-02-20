@@ -184,12 +184,12 @@ const BudgetList: React.FC<BudgetListProps> = ({
             </SwipeableList>
           </Accordion>
         ) : (
-          <SwipeableList type={Type.IOS}>
+          <SwipeableList type={Type.IOS} className="flex flex-col">
             {budgets.map((budget) => {
               return (
                 <SwipeableListItem
                   trailingActions={renderItemActions(budget)}
-                  className="budget-list-item"
+                  className="budget-list-item border-b border-gray-300 last:border-b-0 py-2"
                 >
                   <div className="flex w-full justify-between">
                     <div>
