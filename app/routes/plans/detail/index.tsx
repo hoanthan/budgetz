@@ -1,20 +1,16 @@
 import { useQuery } from "@tanstack/react-query";
 import { useParams } from "react-router";
 import { createPortal } from "react-dom";
-import { Skeleton } from "~/components/ui/skeleton";
 import { usePageTitle } from "~/hooks/use-page-title";
 import { supabase } from "~/supabase";
 import { Button } from "~/components/ui/button";
 import { Edit } from "lucide-react";
 import { PlanFormDrawer } from "~/components/plan/plan-form-drawer";
 import BudgetFormDrawer from "~/components/budget/budget-form-drawer";
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import { Tables } from "supabase/database.types";
 import BudgetList from "./components/BudgetList";
-import Currency from "~/components/ui/currency";
-import { sum, sumBy } from "lodash-es";
 import PageSkeleton from "~/components/page-skeleton";
-import { cn } from "~/lib/utils";
 import PlanSummary from "./components/PlanSummary";
 
 const PlanDetailPage = () => {

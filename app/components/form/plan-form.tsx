@@ -16,16 +16,17 @@ import { Combobox } from "../ui/combobox";
 import ErrorMessage from "./error-message";
 import { useSettings } from "~/store/settings";
 import { Button } from "../ui/button";
-import { useCallback } from "react";
+import { useCallback, useState } from "react";
 import { DateRange } from "react-day-picker";
 import { Type } from "class-transformer";
 import { DateRangePicker } from "../ui/daterange-picker";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { supabase } from "~/supabase";
 import { omit } from "lodash-es";
 import { toast } from "sonner";
 import { endOfDay, endOfMonth, startOfDay, startOfMonth } from "date-fns";
 import { Tables } from "supabase/database.types";
+import { useDebounceFn } from "@reactuses/core";
 
 class DateRangeDTO {
   @IsDefined()
@@ -52,6 +53,10 @@ class PlanFormData {
   @Type(() => DateRangeDTO)
   @ValidateNested()
   range?: DateRange;
+
+  @IsOptional()
+  @IsString()
+  templateId?: string;
 }
 
 const PlanForm: React.FC<{
@@ -61,6 +66,24 @@ const PlanForm: React.FC<{
   type?: Tables<"plans">["type"];
 }> = ({ onSuccess, onCancel, initialData, type = "plan" }) => {
   const settings = useSettings((state) => state.settings);
+
+  const [templateSearch, setTemplateSearch] = useState("");
+
+  const { data: templates } = useQuery({
+    queryKey: ["template", templateSearch],
+    queryFn: async () =>
+      await supabase
+        .from("plans")
+        .select("id, name")
+        .eq("type", "template")
+        .ilike("name", `%${templateSearch}%`)
+        .limit(20),
+    select: (res) =>
+      res.data?.map((template) => ({
+        value: template.id,
+        label: template.name,
+      })),
+  });
 
   const { handleSubmit, control, formState, register } = useForm<PlanFormData>({
     resolver: classValidatorResolver(PlanFormData),
@@ -84,7 +107,7 @@ const PlanForm: React.FC<{
       supabase
         .from("plans")
         .upsert({
-          ...omit(data, "range"),
+          ...omit(data, "range", "templateId"),
           start:
             type === "plan" && data.range?.from
               ? startOfDay(data.range.from).toISOString()
@@ -95,7 +118,29 @@ const PlanForm: React.FC<{
               : null,
           type,
         })
-        .select(),
+        .select()
+        .then(async (res) => {
+          const plan = res.data?.[0];
+          if (data.templateId && plan) {
+            const budgets = await supabase
+              .from("budgets")
+              .select()
+              .eq("plan_id", data.templateId)
+              .limit(1000);
+            if (budgets.data?.length) {
+              await supabase.from("budgets").insert(
+                budgets.data.map((budget) => ({
+                  name: budget.name,
+                  type: budget.type,
+                  amount: budget.amount,
+                  plan_id: plan.id,
+                }))
+              );
+            }
+          }
+
+          return res;
+        }),
     onSuccess: (res) => {
       if (res.error) {
         toast.error(res.error.message);
@@ -114,8 +159,32 @@ const PlanForm: React.FC<{
     create(data);
   }, []);
 
+  const { run: onSearchTemplate } = useDebounceFn((text: string) => {
+    setTemplateSearch(text);
+  }, 400);
+
   return (
     <form className="flex flex-col gap-4" onSubmit={handleSubmit(onSubmit)}>
+      <div className="grid gap-2">
+        <Label>Template</Label>
+        <Controller
+          control={control}
+          name="templateId"
+          render={({ field }) => (
+            <Combobox
+              placeholder="Select template..."
+              name={field.name}
+              value={field.value}
+              onChange={field.onChange}
+              onSearch={onSearchTemplate}
+              options={templates}
+              commandProps={{
+                shouldFilter: false,
+              }}
+            />
+          )}
+        />
+      </div>
       <div className="grid gap-2">
         <Label>Name</Label>
         <Input

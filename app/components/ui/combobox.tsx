@@ -2,6 +2,7 @@
 
 import * as React from "react";
 import { Check, ChevronsUpDown } from "lucide-react";
+import { Command as CommandPrimitive } from "cmdk";
 
 import { cn } from "~/lib/utils";
 import { Button } from "~/components/ui/button";
@@ -32,6 +33,8 @@ type ComboboxProps = {
   notFoundText?: string;
   name?: string;
   searchPlaceholder?: string;
+  onSearch?: (value: string) => void;
+  commandProps?: React.ComponentProps<typeof CommandPrimitive>;
 };
 
 export function Combobox({
@@ -42,6 +45,8 @@ export function Combobox({
   placeholder,
   notFoundText,
   searchPlaceholder = "Search...",
+  onSearch,
+  commandProps,
   ...props
 }: ComboboxProps & React.HTMLAttributes<HTMLButtonElement>) {
   const [open, setOpen] = React.useState(false);
@@ -63,11 +68,14 @@ export function Combobox({
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-full max-w-80 p-0">
-        <Command>
+        <Command {...commandProps}>
           <CommandInput
             name={name}
             placeholder={searchPlaceholder}
             className="h-9"
+            onChangeCapture={(e) => {
+              onSearch?.((e.target as HTMLInputElement).value);
+            }}
           />
           <CommandList>
             <CommandEmpty>{notFoundText}</CommandEmpty>
