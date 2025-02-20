@@ -43,12 +43,12 @@ export default function PlansPage() {
           count: "exact",
         })
         .eq("type", "template")
-        .order("created_at", {
-          ascending: false,
-        })
         .order("end", {
           ascending: false,
           nullsFirst: true,
+        })
+        .order("created_at", {
+          ascending: false,
         })
         .ilike("name", `%${searchText}%`),
   });
