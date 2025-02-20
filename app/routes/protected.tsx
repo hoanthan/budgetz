@@ -1,20 +1,13 @@
-import { useEffect } from "react"
-import { Outlet } from "react-router"
-import { useAuth } from "~/store/auth"
+import { Navigate, Outlet } from "react-router";
+import { useAuth } from "~/store/auth";
 
 const ProtectedRoute = () => {
-  const isAuthInitialized = useAuth(state => state.isInitialized)
-  const session = useAuth(state => state.session)
+  const isAuthInitialized = useAuth((state) => state.isInitialized);
+  const session = useAuth((state) => state.session);
 
-  useEffect(() => {
-    if (isAuthInitialized && !session) window.location.assign('/auth/login')
-  }, [isAuthInitialized, session])
+  if (isAuthInitialized && !session) return <Navigate to="/auth/login" />;
 
-  if (!isAuthInitialized || !session) return null
+  return <Outlet />;
+};
 
-  return (
-    <Outlet />
-  )
-}
-
-export default ProtectedRoute
+export default ProtectedRoute;

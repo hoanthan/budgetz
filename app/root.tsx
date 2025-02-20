@@ -105,7 +105,7 @@ export default function App() {
   const isAuthInitialized = useAuth((state) => state.isInitialized);
   const setSettings = useSettings((state) => state.setSettings);
 
-  const { data: session, isFetched: isFetchedSession } = useQuery({
+  useQuery({
     queryKey: ["session"],
     queryFn: async () => {
       const authSession = await supabase.auth
@@ -141,6 +141,14 @@ export default function App() {
     <>
       <Outlet />
     </>
+  );
+}
+
+export function HydrateFallback() {
+  return (
+    <div className="fixed top-0 left-0 w-screen h-screen z-[1] bg-white">
+      <ActivityIndicator />
+    </div>
   );
 }
 

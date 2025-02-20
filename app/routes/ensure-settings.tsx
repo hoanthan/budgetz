@@ -1,21 +1,21 @@
-import { useEffect } from "react"
-import { Outlet } from "react-router"
-import { useAuth } from "~/store/auth"
-import { useSettings } from "~/store/settings"
+import { Navigate, Outlet } from "react-router";
+import { useAuth } from "~/store/auth";
+import { useSettings } from "~/store/settings";
 
 const EnsureSettings = () => {
-  const isAuthInitialized = useAuth(state => state.isInitialized)
-  const settings = useSettings(state => state.settings)
+  const isAuthInitialized = useAuth((state) => state.isInitialized);
+  const settings = useSettings((state) => state.settings);
 
-  useEffect(() => {
-    if (isAuthInitialized && !settings) window.location.assign(`/settings?callback=${window.location.pathname + window.location.search}`)
-  }, [isAuthInitialized, settings])
+  if (isAuthInitialized && !settings)
+    return (
+      <Navigate
+        to={`/settings?callback=${
+          window.location.pathname + window.location.search
+        }`}
+      />
+    );
 
-  if (!isAuthInitialized || !settings) return null
+  return <Outlet />;
+};
 
-  return (
-    <Outlet />
-  )
-}
-
-export default EnsureSettings
+export default EnsureSettings;

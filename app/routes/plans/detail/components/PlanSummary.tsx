@@ -12,9 +12,10 @@ import Currency from "~/components/ui/currency";
 import { cn } from "~/lib/utils";
 
 const PlanSummary: React.FC<{
+  plan: Tables<"plans">;
   budgets?: Tables<"budgets">[];
   budgetsActualAmount?: Record<number, number>;
-}> = ({ budgets, budgetsActualAmount }) => {
+}> = ({ plan, budgets, budgetsActualAmount }) => {
   const estimatedOutAmount = useMemo(() => {
     return sumBy(
       budgets?.filter((budget) => budget.type === "out"),
@@ -89,33 +90,35 @@ const PlanSummary: React.FC<{
           </div>
         </AccordionContent>
       </AccordionItem>
-      <AccordionItem value="actual" className="border-0">
-        <AccordionTrigger className="w-full py-1 items-center">
-          <div className="w-full flex justify-between items-center text-sm">
-            <p className="text-muted-foreground">Actual</p>
-            <p
-              className={cn({
-                "text-destructive": actualBalance < 0,
-                "text-green-600": actualBalance > 0,
-              })}
-            >
-              <Currency>{actualBalance}</Currency>
-            </p>
-          </div>
-        </AccordionTrigger>
-        <AccordionContent>
-          <div className="flex flex-col items-end text-xs pr-8">
-            <p className="text-green-600 flex gap-1 items-center">
-              <MoveDownLeft size={12} />{" "}
-              <Currency style="decimal">{actualInAmount}</Currency>
-            </p>
-            <p className="text-destructive flex gap-1 items-center">
-              <MoveUpRight size={12} />{" "}
-              <Currency style="decimal">{actualOutAmount}</Currency>
-            </p>
-          </div>
-        </AccordionContent>
-      </AccordionItem>
+      {plan.type === "plan" ? (
+        <AccordionItem value="actual" className="border-0">
+          <AccordionTrigger className="w-full py-1 items-center">
+            <div className="w-full flex justify-between items-center text-sm">
+              <p className="text-muted-foreground">Actual</p>
+              <p
+                className={cn({
+                  "text-destructive": actualBalance < 0,
+                  "text-green-600": actualBalance > 0,
+                })}
+              >
+                <Currency>{actualBalance}</Currency>
+              </p>
+            </div>
+          </AccordionTrigger>
+          <AccordionContent>
+            <div className="flex flex-col items-end text-xs pr-8">
+              <p className="text-green-600 flex gap-1 items-center">
+                <MoveDownLeft size={12} />{" "}
+                <Currency style="decimal">{actualInAmount}</Currency>
+              </p>
+              <p className="text-destructive flex gap-1 items-center">
+                <MoveUpRight size={12} />{" "}
+                <Currency style="decimal">{actualOutAmount}</Currency>
+              </p>
+            </div>
+          </AccordionContent>
+        </AccordionItem>
+      ) : null}
     </Accordion>
   );
 };

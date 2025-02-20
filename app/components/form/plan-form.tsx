@@ -58,7 +58,8 @@ const PlanForm: React.FC<{
   onSuccess?: (plan: Tables<"plans">) => void;
   onCancel?: () => void;
   initialData?: Tables<"plans">;
-}> = ({ onSuccess, onCancel, initialData }) => {
+  type?: Tables<"plans">["type"];
+}> = ({ onSuccess, onCancel, initialData, type = "plan" }) => {
   const settings = useSettings((state) => state.settings);
 
   const { handleSubmit, control, formState, register } = useForm<PlanFormData>({
@@ -84,10 +85,15 @@ const PlanForm: React.FC<{
         .from("plans")
         .upsert({
           ...omit(data, "range"),
-          start: data.range?.from
-            ? startOfDay(data.range.from).toISOString()
-            : null,
-          end: data.range?.to ? endOfDay(data.range.to).toISOString() : null,
+          start:
+            type === "plan" && data.range?.from
+              ? startOfDay(data.range.from).toISOString()
+              : null,
+          end:
+            type === "plan" && data.range?.to
+              ? endOfDay(data.range.to).toISOString()
+              : null,
+          type,
         })
         .select(),
     onSuccess: (res) => {
@@ -95,7 +101,7 @@ const PlanForm: React.FC<{
         toast.error(res.error.message);
         return;
       }
-      toast.success("Plan saved!");
+      toast.success(type === "plan" ? "Plan saved!" : "Template saved!");
       if (!res.data?.[0]) return;
       onSuccess?.(res.data[0]);
     },
@@ -111,32 +117,34 @@ const PlanForm: React.FC<{
   return (
     <form className="flex flex-col gap-4" onSubmit={handleSubmit(onSubmit)}>
       <div className="grid gap-2">
-        <Label>Plan name</Label>
+        <Label>Name</Label>
         <Input
           tabIndex={0}
-          placeholder="Plan name..."
+          placeholder="Name..."
           {...register("name")}
           autoFocus
         />
         <ErrorMessage formState={formState} name="name" />
       </div>
-      <Controller
-        control={control}
-        name="range"
-        render={({ field: { name, value, onChange } }) => (
-          <div className="grid gap-2">
-            <Label>Date range</Label>
-            <DateRangePicker
-              name={name}
-              value={value}
-              onChange={onChange}
-              tabIndex={1}
-            />
-            <ErrorMessage formState={formState} name="range.from" />
-            <ErrorMessage formState={formState} name="range.to" />
-          </div>
-        )}
-      />
+      {type === "plan" ? (
+        <Controller
+          control={control}
+          name="range"
+          render={({ field: { name, value, onChange } }) => (
+            <div className="grid gap-2">
+              <Label>Date range</Label>
+              <DateRangePicker
+                name={name}
+                value={value}
+                onChange={onChange}
+                tabIndex={1}
+              />
+              <ErrorMessage formState={formState} name="range.from" />
+              <ErrorMessage formState={formState} name="range.to" />
+            </div>
+          )}
+        />
+      ) : null}
       <Controller
         control={control}
         name="currency"

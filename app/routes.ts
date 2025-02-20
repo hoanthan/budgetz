@@ -19,7 +19,11 @@ export default [
       layout("routes/ensure-settings.tsx", [
         index("routes/home.tsx"),
         ...prefix("plans", [
+          index("routes/plans/index.tsx"),
           route(":id", "routes/plans/detail/index.tsx"),
+        ]),
+        ...prefix("templates", [
+          index("routes/templates/index.tsx"),
         ]),
       ]),
     ]),

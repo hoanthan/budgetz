@@ -104,6 +104,7 @@ const PlanDetailPage = () => {
             document.getElementById("headerActions")!
           )}
           <PlanSummary
+            plan={plan}
             budgets={budgets ?? undefined}
             budgetsActualAmount={budgetsActualAmount?.data}
           />
@@ -119,6 +120,7 @@ const PlanDetailPage = () => {
               <BudgetList
                 isLoading={isLoadingBudgets}
                 isLoadingActualAmount={isLoadingBudgetAmount}
+                plan={plan}
                 toggleForm={toggleBudgetForm}
                 selectBudget={setActiveBudget}
                 budgetMap={budgetsActualAmount?.data}

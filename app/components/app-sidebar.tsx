@@ -1,6 +1,4 @@
 import * as React from "react";
-import { GalleryVerticalEnd } from "lucide-react";
-
 import {
   Sidebar,
   SidebarContent,
@@ -18,6 +16,8 @@ import { Link, NavLink } from "react-router";
 import { Button } from "./ui/button";
 import { useMutation } from "@tanstack/react-query";
 import { supabase } from "~/supabase";
+import { toast } from "sonner";
+import { clearSession } from "~/lib/utils";
 
 type NavItem = {
   title: string;
@@ -28,7 +28,11 @@ type NavItem = {
 const navItems: NavItem[] = [
   {
     title: "Plans",
-    url: "/",
+    url: "/plans",
+  },
+  {
+    title: "Templates",
+    url: "/templates",
   },
   {
     title: "Settings",
@@ -44,7 +48,8 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         scope: "local",
       }),
     onSuccess: () => {
-      window.location.assign("/auth/login");
+      toast.success("Signed out");
+      clearSession();
     },
   });
 

@@ -1,6 +1,9 @@
 import { type ClassValue, clsx } from "clsx";
 import { format } from "date-fns";
 import { twMerge } from "tailwind-merge";
+import { useAuth } from "~/store/auth";
+import { useRoute } from "~/store/route";
+import { useSettings } from "~/store/settings";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -27,4 +30,10 @@ export function formatDate(
   token = "LLL dd, y @ HH:mm",
 ) {
   return format(date instanceof Date ? date : new Date(date), token);
+}
+
+export function clearSession() {
+  useAuth.getState().setSession(null);
+  useSettings.getState().setSettings(null);
+  useRoute.getState().setPageTitle(null);
 }

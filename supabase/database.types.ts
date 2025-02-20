@@ -52,6 +52,7 @@ export type Database = {
           id: string
           name: string
           start: string | null
+          type: Database["public"]["Enums"]["PlanType"]
           user_id: string | null
         }
         Insert: {
@@ -61,6 +62,7 @@ export type Database = {
           id?: string
           name: string
           start?: string | null
+          type?: Database["public"]["Enums"]["PlanType"]
           user_id?: string | null
         }
         Update: {
@@ -70,6 +72,7 @@ export type Database = {
           id?: string
           name?: string
           start?: string | null
+          type?: Database["public"]["Enums"]["PlanType"]
           user_id?: string | null
         }
         Relationships: []
@@ -139,6 +142,7 @@ export type Database = {
     }
     Enums: {
       BudgetType: "in" | "out"
+      PlanType: "plan" | "template"
     }
     CompositeTypes: {
       [_ in never]: never

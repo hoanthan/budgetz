@@ -20,7 +20,8 @@ export const PlanFormDrawer: React.FC<{
     opened: boolean;
     toggle: (val: boolean) => void;
   }) => React.ReactNode;
-}> = ({ children, onSuccess, plan, onToggle }) => {
+  type?: Tables<"plans">["type"];
+}> = ({ children, onSuccess, plan, onToggle, type = "plan" }) => {
   const [opened, toggle] = useToggle(false);
 
   const onSaveSuccess = useCallback((data: Tables<"plans">) => {
@@ -43,7 +44,13 @@ export const PlanFormDrawer: React.FC<{
         <div className="mx-auto w-full max-w-sm">
           <DrawerHeader>
             <DrawerTitle>
-              {plan?.id ? "Edit Plan" : "Create New Plan"}
+              {type === "plan"
+                ? plan?.id
+                  ? "Edit Plan"
+                  : "Create New Plan"
+                : plan?.id
+                ? "Edit Template"
+                : "Create New Template"}
             </DrawerTitle>
           </DrawerHeader>
           <div className="p-4">
@@ -52,6 +59,7 @@ export const PlanFormDrawer: React.FC<{
                 initialData={plan}
                 onSuccess={onSaveSuccess}
                 onCancel={() => _toggle(false)}
+                type={type}
               />
             ) : null}
           </div>

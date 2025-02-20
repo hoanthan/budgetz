@@ -27,6 +27,7 @@ import { createPortal } from "react-dom";
 import { Badge } from "~/components/ui/badge";
 
 type BudgetListProps = {
+  plan: Tables<"plans">;
   isLoading: boolean;
   budgets?: Array<
     Tables<"budgets"> & { transactions: Tables<"transactions">[] }
@@ -41,13 +42,14 @@ type BudgetListProps = {
 
 const BudgetList: React.FC<BudgetListProps> = ({
   isLoading,
-  budgetMap,
+  plan,
   budgets,
-  isLoadingActualAmount,
   toggleForm,
-  onRefetchActualAmount,
   onDeleted,
   selectBudget,
+  isLoadingActualAmount,
+  budgetMap,
+  onRefetchActualAmount,
 }) => {
   const {
     mutate: deleteBudget,
@@ -112,25 +114,97 @@ const BudgetList: React.FC<BudgetListProps> = ({
         </div>
       ) : null}
       {budgets ? (
-        <Accordion type="single" asChild collapsible>
+        plan.type === "plan" ? (
+          <Accordion type="single" asChild collapsible>
+            <SwipeableList type={Type.IOS}>
+              {budgets.map((budget) => {
+                const actualAmount = budgetMap?.[budget.id] ?? 0;
+
+                return (
+                  <AccordionItem
+                    key={budget.id}
+                    value={budget.id.toString()}
+                    asChild
+                  >
+                    <SwipeableListItem
+                      trailingActions={renderItemActions(budget)}
+                      className="budget-list-item"
+                    >
+                      <AccordionTrigger className="w-full">
+                        <div className="flex w-full justify-between">
+                          <div>
+                            <p className="grow">{budget.name}</p>
+                            {budget.type === "in" ? (
+                              <Badge className="mt-1 text-xs flex gap-1 items-center">
+                                <MoveDownLeft size={12} /> Income
+                              </Badge>
+                            ) : (
+                              <Badge
+                                variant="secondary"
+                                className="mt-1 text-xs flex gap-1 items-center"
+                              >
+                                <MoveUpRight /> Expense
+                              </Badge>
+                            )}
+                          </div>
+                          <div className="text-right">
+                            {isDeletingBudget &&
+                            deletingBudgetId === budget.id ? (
+                              <p className="text-destructive flex items-center gap-1 text-xs">
+                                Deleting <FaSpinner className="animate-spin" />
+                              </p>
+                            ) : (
+                              <>
+                                <p>
+                                  <Currency>{budget.amount}</Currency>
+                                </p>
+                                <p className="text-muted-foreground font-normal flex items-center justify-end text-right">
+                                  actual:{" "}
+                                  {isLoadingActualAmount ? (
+                                    <FaSpinner className="animate-spin ml-2" />
+                                  ) : (
+                                    <Currency>{actualAmount}</Currency>
+                                  )}
+                                </p>
+                              </>
+                            )}
+                          </div>
+                        </div>
+                      </AccordionTrigger>
+                      <AccordionContent className="border-t border-gray-100 border-solid">
+                        <BudgetSummary
+                          budget={budget}
+                          onRefetchActualAmount={onRefetchActualAmount}
+                        />
+                      </AccordionContent>
+                    </SwipeableListItem>
+                  </AccordionItem>
+                );
+              })}
+            </SwipeableList>
+          </Accordion>
+        ) : (
           <SwipeableList type={Type.IOS}>
             {budgets.map((budget) => {
-              const actualAmount = budgetMap?.[budget.id] ?? 0;
-
               return (
-                <AccordionItem
-                  key={budget.id}
-                  value={budget.id.toString()}
-                  asChild
+                <SwipeableListItem
+                  trailingActions={renderItemActions(budget)}
+                  className="budget-list-item"
                 >
-                  <SwipeableListItem
-                    trailingActions={renderItemActions(budget)}
-                    className="budget-list-item"
-                  >
-                    <AccordionTrigger className="w-full">
-                      <div className="flex w-full justify-between">
-                        <div>
-                          <p className="grow">{budget.name}</p>
+                  <div className="flex w-full justify-between">
+                    <div>
+                      <p className="grow">{budget.name}</p>
+                    </div>
+                    <div className="text-right flex flex-col items-end">
+                      {isDeletingBudget && deletingBudgetId === budget.id ? (
+                        <p className="text-destructive flex items-center gap-1 text-xs">
+                          Deleting <FaSpinner className="animate-spin" />
+                        </p>
+                      ) : (
+                        <>
+                          <p>
+                            <Currency>{budget.amount}</Currency>
+                          </p>
                           {budget.type === "in" ? (
                             <Badge className="mt-1 text-xs flex gap-1 items-center">
                               <MoveDownLeft size={12} /> Income
@@ -143,43 +217,15 @@ const BudgetList: React.FC<BudgetListProps> = ({
                               <MoveUpRight /> Expense
                             </Badge>
                           )}
-                        </div>
-                        <div className="text-right">
-                          {isDeletingBudget &&
-                          deletingBudgetId === budget.id ? (
-                            <p className="text-destructive flex items-center gap-1 text-xs">
-                              Deleting <FaSpinner className="animate-spin" />
-                            </p>
-                          ) : (
-                            <>
-                              <p>
-                                <Currency>{budget.amount}</Currency>
-                              </p>
-                              <p className="text-muted-foreground font-normal flex items-center justify-end text-right">
-                                actual:{" "}
-                                {isLoadingActualAmount ? (
-                                  <FaSpinner className="animate-spin ml-2" />
-                                ) : (
-                                  <Currency>{actualAmount}</Currency>
-                                )}
-                              </p>
-                            </>
-                          )}
-                        </div>
-                      </div>
-                    </AccordionTrigger>
-                    <AccordionContent className="border-t border-gray-100 border-solid">
-                      <BudgetSummary
-                        budget={budget}
-                        onRefetchActualAmount={onRefetchActualAmount}
-                      />
-                    </AccordionContent>
-                  </SwipeableListItem>
-                </AccordionItem>
+                        </>
+                      )}
+                    </div>
+                  </div>
+                </SwipeableListItem>
               );
             })}
           </SwipeableList>
-        </Accordion>
+        )
       ) : null}
       {createPortal(
         <Button
